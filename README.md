@@ -1,0 +1,2 @@
+# TestContainers module for WireMock
+
