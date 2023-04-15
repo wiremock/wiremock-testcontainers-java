@@ -1,28 +1,16 @@
 package org.wiremock.integrations.testcontainers;
 
-import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.images.builder.Transferable;
-import org.testcontainers.shaded.com.github.dockerjava.core.util.FilePathUtil;
 import org.testcontainers.shaded.com.google.common.io.Resources;
-import org.testcontainers.shaded.org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.testcontainers.utility.MountableFile;
 
 /**
  * Provisions WireMock standalone server as a container.
