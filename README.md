@@ -17,7 +17,7 @@ A common example is using Wiremock 3.x with Java 1.8.
 
 ## Usage
 
-Import the dependency:
+### Importing the dependency
 
 ```xml
     <dependency>
@@ -28,8 +28,9 @@ Import the dependency:
     </dependency>
 ```
 
-Use it in your Unit tests.
-Javadoc is coming soon!
+### Using the test container in JUnit 4/5
+
+P.S: Javadoc is coming soon!
 
 ```java
 import org.wiremock.integrations.testcontainers.WireMockContainer;
@@ -67,6 +68,17 @@ public class WireMockContainerTest {
     }
 }
 ```
+
+### Using extensions
+
+The API supports adding [WireMock extensions](https://wiremock.org/docs/extending-wiremock/)
+to the test container.
+The extension can be sourced from the classpath for bundled extensions,
+or added from the JAR file in the initializer.
+
+#### Using external extension
+
+For the , an extension Jar should be 
 
 ## Contributing
 
