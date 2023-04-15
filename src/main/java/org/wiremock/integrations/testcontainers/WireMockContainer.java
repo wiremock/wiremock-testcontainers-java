@@ -1,5 +1,6 @@
 package org.wiremock.integrations.testcontainers;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -11,6 +12,7 @@ import java.util.Map;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.shaded.com.google.common.io.Resources;
+import org.testcontainers.utility.MountableFile;
 
 /**
  * Provisions WireMock standalone server as a container.
@@ -19,13 +21,15 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     private static final String DEFAULT_IMAGE_NAME = "wiremock/wiremock";
     private static final String DEFAULT_TAG = "latest";
 
-    private static final String SNIPPETS_DIR = "/home/wiremock/mappings/";
+    private static final String MAPPINGS_DIR = "/home/wiremock/mappings/";
+    private static final String FILES_DIR = "/home/wiremock/__files/";
 
     private static final int PORT = 8080;
 
     private final StringBuilder wireMockArgs;
 
-    private final Map<String, Stub> stubs = new HashMap<>();
+    private final Map<String, Stub> mappingStubs = new HashMap<>();
+    private final Map<String, MountableFile> mappingFiles = new HashMap<>();
 
     public WireMockContainer() {
         this(DEFAULT_TAG);
@@ -35,25 +39,65 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
         this(DEFAULT_IMAGE_NAME, version);
     }
 
-    public WireMockContainer(String image,String version) {
+    public WireMockContainer(String image, String version) {
         super(image + ":" + version);
         wireMockArgs = new StringBuilder();
     }
 
-    public WireMockContainer withStub(String name, String json) {
-        stubs.put(name, new Stub(name, json));
+    /**
+     * Adds CLI argument to the WireMock call.
+     * @param arg Argument
+     * @return this instance
+     */
+    public WireMockContainer withCliArg(String arg) {
+        //TODO: Switch to framework with proper CLI escaping
+        wireMockArgs.append(' ').append(arg);
+        return this;
+    }
+
+    /**
+     * Adds a JSON mapping stub to WireMock configuration
+     * @param name Name of the mapping stub
+     * @param json Configuration JSON
+     * @return this instance
+     */
+    public WireMockContainer withMapping(String name, String json) {
+        mappingStubs.put(name, new Stub(name, json));
         // TODO: Prevent duplication
         return this;
     }
 
-    public WireMockContainer withStubResource(String name, Class<?> resource, String resourceFile) {
+    /**
+     * Loads mapping stub from the class resource
+     * @param name Name of the mapping stub
+     * @param resource Resource class. Name of the class will be appended to the resource path
+     * @param resourceJson Mapping definition file
+     * @return this instance
+     */
+    public WireMockContainer withMapping(String name, Class<?> resource, String resourceJson) {
         try {
-            URL url = Resources.getResource(resource, resource.getSimpleName() + "/" + resourceFile);
+            URL url = Resources.getResource(resource, resource.getSimpleName() + "/" + resourceJson);
             String text = Resources.toString(url, StandardCharsets.UTF_8);
-            return withStub(name, text);
+            return withMapping(name, text);
         } catch (IOException ex) {
             throw new IllegalArgumentException(ex);
         }
+    }
+
+    public WireMockContainer withFile(String name, File file) {
+        mappingFiles.put(name, MountableFile.forHostPath(file.getPath()));
+        // TODO: Prevent duplication
+        return this;
+    }
+
+    public WireMockContainer withFileFromResource(String name, String classpathResource) {
+        mappingFiles.put(name, MountableFile.forClasspathResource(classpathResource));
+        // TODO: Prevent duplication
+        return this;
+    }
+
+    public WireMockContainer withFileFromResource(String name, Class<?> resource, String filename) {
+        return withFileFromResource(name, resource.getName().replace('.', '/') + "/" + filename);
     }
 
     public String getEndpoint() {
@@ -73,8 +117,12 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
         super.configure();
         withExposedPorts(PORT);
         withCommand(wireMockArgs.toString());
-        for (Stub stub : stubs.values()) {
-            withCopyToContainer(Transferable.of(stub.json), SNIPPETS_DIR + stub.name + ".json");
+        for (Stub stub : mappingStubs.values()) {
+            withCopyToContainer(Transferable.of(stub.json), MAPPINGS_DIR + stub.name + ".json");
+        }
+
+        for (Map.Entry<String, MountableFile> mount : mappingFiles.entrySet()) {
+            withCopyToContainer(mount.getValue(), FILES_DIR + mount.getKey());
         }
     }
 
