@@ -39,9 +39,8 @@ public class WireMockContainerExtensionTest {
 
     public static final Logger LOGGER =  LoggerFactory.getLogger(WireMockContainerExtensionTest.class);
 
-    //TODO: The extension won't work righe with newer WireMock versions because of relocations
     @Rule
-    public WireMockContainer wiremockServer = new WireMockContainer("2.26.0")
+    public WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
             .withStartupTimeout(Duration.ofSeconds(60))
             .withMapping("json-body-transformer", WireMockContainerExtensionTest.class, "json-body-transformer.json")
             .withExtension("JSON Body Transformer", Collections.singleton("com.ninecookies.wiremock.extensions.JsonBodyTransformer"),
