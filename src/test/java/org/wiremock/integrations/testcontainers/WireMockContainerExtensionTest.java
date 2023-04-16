@@ -15,58 +15,56 @@
  */
 package org.wiremock.integrations.testcontainers;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class WireMockContainerTest {
+/**
+ * Tests the WireMock extension loading.
+ * It uses the external Jar supplied by the Maven Dependency Plugin.
+ */
+public class WireMockContainerExtensionTest {
+
+    public static final Logger LOGGER =  LoggerFactory.getLogger(WireMockContainerExtensionTest.class);
 
     @Rule
     public WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
-            .withMapping("hello", WireMockContainerTest.class, "hello-world.json")
-            .withMapping("hello-resource", WireMockContainerTest.class, "hello-world-resource.json")
-            .withFileFromResource("hello-world-resource-response.xml", WireMockContainerTest.class, "hello-world-resource-response.xml");
+            .withStartupTimeout(Duration.ofSeconds(60))
+            .withMapping("json-body-transformer", WireMockContainerExtensionTest.class, "json-body-transformer.json")
+            .withExtension("JSON Body Transformer", Collections.singleton("com.ninecookies.wiremock.extensions.JsonBodyTransformer"),
+                    Collections.singleton(Paths.get("target", "test-wiremock-extension", "9cookies-wiremock-extensions.jar").toFile()));
+
+    @Before
+    public void before() {
+        wiremockServer.followOutput(new Slf4jLogConsumer(LOGGER));
+    }
 
     @Test
-    public void helloWorld() throws Exception {
+    public void testJSONBodyTransformer() throws Exception {
         final HttpClient client = HttpClient.newBuilder().build();
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(wiremockServer.getRequestURI("hello"))
+                .uri(wiremockServer.getRequestURI("json-body-transformer"))
                 .timeout(Duration.ofSeconds(10))
                 .header("Content-Type", "application/json")
-                .GET().build();
+                .POST(HttpRequest.BodyPublishers.ofString("{\"name\":\"John Doe\"}")).build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertThat(response.body())
                 .as("Wrong response body")
-                .contains("Hello, world!");
+                .contains("Hello, John Doe!");
     }
 
-    @Test
-    public void helloWorldFromFile() throws Exception {
-        final HttpClient client = HttpClient.newBuilder()
-                .version(HttpClient.Version.HTTP_1_1)
-                .build();
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(wiremockServer.getRequestURI("hello-from-file"))
-                .timeout(Duration.ofSeconds(10))
-                .header("Content-Type", "application/json")
-                .GET()
-                .build();
-
-        HttpResponse<String> response =
-                client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        assertThat(response.body())
-                .as("Wrong response body")
-                .contains("Hello, world!");
-    }
 }

@@ -103,7 +103,45 @@
           </execution>
         </executions>
       </plugin>
+
+      <!-- For testing WireMock extensions -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.5.0</version>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.ninecookies.wiremock.extensions</groupId>
+                  <artifactId>wiremock-extensions</artifactId>
+                  <version>0.4.1</version>
+                  <classifier>jar-with-dependencies</classifier>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${project.build.directory}/test-wiremock-extension</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
+  <!-- For testing WireMock extensions -->
+  <repositories>
+    <repository>
+      <id>9c-releases</id>
+      <url>https://raw.github.com/9cookies/mvn-repo/master/releases/</url>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </releases>
+    </repository>
+  </repositories>
 </project>
