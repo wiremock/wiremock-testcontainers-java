@@ -115,7 +115,6 @@
             <phase>package</phase>
             <goals>
               <goal>copy</goal>
-              <goal>copy-dependencies</goal>
             </goals>
             <configuration>
               <artifactItems>
@@ -123,12 +122,11 @@
                   <groupId>com.ninecookies.wiremock.extensions</groupId>
                   <artifactId>wiremock-extensions</artifactId>
                   <version>0.4.1</version>
+                  <classifier>jar-with-dependencies</classifier>
                   <overWrite>false</overWrite>
                   <destFileName>9cookies-wiremock-extensions.jar</destFileName>
                 </artifactItem>
               </artifactItems>
-              <!--<includeScope>runtime</includeScope>-->
-              <excludeArtifactIds>testcontainers</excludeArtifactIds> <!--Looks like the library defect, it should be provided-->
               <outputDirectory>${project.build.directory}/test-wiremock-extension</outputDirectory>
               <overWriteReleases>false</overWriteReleases>
               <overWriteSnapshots>true</overWriteSnapshots>
