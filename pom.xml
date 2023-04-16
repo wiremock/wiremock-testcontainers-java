@@ -123,13 +123,9 @@
                   <artifactId>wiremock-extensions</artifactId>
                   <version>0.4.1</version>
                   <classifier>jar-with-dependencies</classifier>
-                  <overWrite>false</overWrite>
-                  <destFileName>9cookies-wiremock-extensions.jar</destFileName>
                 </artifactItem>
               </artifactItems>
               <outputDirectory>${project.build.directory}/test-wiremock-extension</outputDirectory>
-              <overWriteReleases>false</overWriteReleases>
-              <overWriteSnapshots>true</overWriteSnapshots>
             </configuration>
           </execution>
         </executions>
