@@ -1,4 +1,4 @@
-# TestContainers module for WireMock
+# TestContainers Java module for WireMock
 
 > NOTE: This project is under development.
 > Not all WireMock features are supported at the moment,
