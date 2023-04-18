@@ -4,7 +4,7 @@
 
   <groupId>org.wiremock.integrations.testcontainers</groupId>
   <artifactId>wiremock-testcontainers-module</artifactId>
-  <description>TestContainers module for WireMock</description>
+  <description>Testcontainers Java module for WireMock</description>
   <version>1.0-alpha-3-SNAPSHOT</version>
 
   <licenses>
