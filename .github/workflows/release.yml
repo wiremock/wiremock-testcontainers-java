@@ -1,0 +1,45 @@
+name: release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11
+          distribution: 'temurin'
+          cache: maven
+        
+     - name: Publish to GitHub Packages
+       run: mvn -B release:prepare release:perform -s $GITHUB_WORKSPACE/settings.xml
+       env:
+         GITHUB_TOKEN: ${{ github.token }}
+
+      # Create a release
+#      - name: Run JReleaser
+#        uses: jreleaser/release-action@v2
+#        env:
+#          JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Persist logs
+
+ #     - name: JReleaser release output
+ #       if: always()
+ #       uses: actions/upload-artifact@v3
+ #       with:
+ #         name: jreleaser-release
+ #         path: |
+ #           out/jreleaser/trace.log
+ #           out/jreleaser/output.properties
+ 
