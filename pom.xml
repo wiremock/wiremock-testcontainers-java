@@ -5,7 +5,7 @@
   <groupId>org.wiremock.integrations.testcontainers</groupId>
   <artifactId>wiremock-testcontainers-module</artifactId>
   <description>TestContainers module for WireMock</description>
-  <version>1.0-alpha-1</version>
+  <version>1.0-alpha-2-SNAPSHOT</version>
 
   <licenses>
     <license>
@@ -148,7 +148,7 @@
     <connection>scm:git:git://github.com/wiremock/wiremock-testcontainers-java.git</connection>
     <developerConnection>scm:git:https://github.com/wiremock/wiremock-testcontainers-java.git</developerConnection>
     <url>https://github.com/wiremock/wiremock-testcontainers-java</url>
-    <tag>wiremock-testcontainers-module-1.0-alpha-1</tag>
+    <tag>${scmTag}</tag>
   </scm>
          
   <distributionManagement>
