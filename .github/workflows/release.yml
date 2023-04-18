@@ -1,4 +1,4 @@
-name: release
+name: Release to GitHub Packages
 
 on:
   workflow_dispatch:
@@ -22,7 +22,7 @@ jobs:
           cache: maven
         
       - name: Publish to GitHub Packages
-        run: mvn -B release:prepare release:perform -s $GITHUB_WORKSPACE/settings.xml
+        run: mvn -B release:prepare release:perform
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
