@@ -1,7 +1,7 @@
 project:
   name: wiremock-testcontainers-module
-  description: TestContainers Java module for WireMock
-  longDescription: TestContainers Java module for WireMock
+  description: Testcontainers Java module for WireMock
+  longDescription: Testcontainers Java module for WireMock
   links:
     homepage: https://github.com/wiremock/wiremock-testcontainers-java
   authors:
