@@ -22,7 +22,10 @@ jobs:
           cache: maven
         
       - name: Publish to GitHub Packages
-        run: mvn -B release:prepare release:perform
+        run: |
+          git config user.name "${{ github.event.head_commit.committer.name }}"
+          git config user.email "${{ github.event.head_commit.committer.email }}"
+          mvn -B release:prepare release:perform
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
