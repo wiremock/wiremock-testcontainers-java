@@ -148,7 +148,7 @@
   
   <scm>
     <connection>scm:git:git://github.com/wiremock/wiremock-testcontainers-java.git</connection>
-    <developerConnection>scm:git:git@github.com:wiremock/wiremock-testcontainers-java.git</developerConnection>
+    <developerConnection>scm:git:https://github.com/wiremock/wiremock-testcontainers-java.git</developerConnection>
     <url>https://github.com/wiremock/wiremock-testcontainers-java</url>
     <tag>${scmTag}</tag>
   </scm>
