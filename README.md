@@ -1,4 +1,4 @@
-# TestContainers Java module for WireMock
+# Testcontainers Java module for WireMock
 
 [![a](https://img.shields.io/badge/slack-slack.wiremock.org-brightgreen?style=flat&logo=slack)](http://slack.wiremock.org/)
 
