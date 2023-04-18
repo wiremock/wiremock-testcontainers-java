@@ -23,6 +23,7 @@
     <wiremock.version>2.35.0</wiremock.version>
     <testcontainers.version>1.18.0</testcontainers.version>
     <junit.version>5.9.2</junit.version>
+     <project.scm.id>github</project.scm.id>  
   </properties>
 
   <dependencyManagement>
