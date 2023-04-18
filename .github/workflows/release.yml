@@ -21,20 +21,26 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: 11
+          server-id: github
           distribution: 'temurin'
           cache: maven
-      
-      - name: Setup Git user
-        uses: fregante/setup-git-user@v2 
-        
-      - name: Setup SSH Keys and known_hosts
-        env:
-          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+ 
+      - name: Configure Git user
         run: |
-            mkdir -p ~/.ssh
-            ssh-keyscan github.com >> ~/.ssh/known_hosts
-            ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-            ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+ 
+ #     - name: Setup Git user
+ #       uses: fregante/setup-git-user@v2 
+ #       
+#      - name: Setup SSH Keys and known_hosts
+#        env:
+#          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+#        run: |
+#            mkdir -p ~/.ssh
+#            ssh-keyscan github.com >> ~/.ssh/known_hosts
+#            ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+#            ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
         
       - name: Publish to GitHub Packages
         run: mvn -ntp -B release:prepare release:perform
