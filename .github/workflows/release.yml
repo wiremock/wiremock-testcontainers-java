@@ -20,12 +20,12 @@ jobs:
           java-version: 11
           distribution: 'temurin'
           cache: maven
+      
+      - name: Setup Git user
+        uses: fregante/setup-git-user@v2 
         
       - name: Publish to GitHub Packages
-        run: |
-          git config user.name "${{ github.event.head_commit.committer.name }}"
-          git config user.email "${{ github.event.head_commit.committer.email }}"
-          mvn -B release:prepare release:perform
+        run: mvn -ntp -B release:prepare release:perform
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
