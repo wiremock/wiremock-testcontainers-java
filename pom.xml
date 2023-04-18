@@ -43,22 +43,17 @@
       <version>${testcontainers.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <version>${testcontainers.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
       <version>3.24.2</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.2.11</version>
+      <scope>provided</scope>
+      <optional>true</optional>
     </dependency>
   </dependencies>
 
@@ -111,7 +106,7 @@
         <executions>
           <execution>
             <id>copy</id>
-            <phase>package</phase>
+            <phase>compile</phase>
             <goals>
               <goal>copy</goal>
             </goals>
