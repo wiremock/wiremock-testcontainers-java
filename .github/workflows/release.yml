@@ -39,7 +39,6 @@ jobs:
         shell: bash
         run: |
           echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
-          echo ${{ github.event.inputs.version }} > VERSION
           mvn versions:set -DnewVersion=${{ github.event.inputs.version }}-SNAPSHOT
           git commit -m "Releasing version ${{ github.event.inputs.version }}" pom.xml
           git push origin main
