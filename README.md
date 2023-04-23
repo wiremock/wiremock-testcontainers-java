@@ -165,6 +165,32 @@ public class WireMockContainerExtensionTest {
 }
 ```
 
+```java
+@Testcontainers
+public class WireMockContainerExtensionJUnit5Test {
+    
+    @Container
+    public WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
+            .withMapping("json-body-transformer", WireMockContainerExtensionTest.class, "json-body-transformer.json")
+            .withExtension("JSON Body Transformer", Collections.singleton("com.ninecookies.wiremock.extensions.JsonBodyTransformer"),
+                    Collections.singleton(Paths.get("target", "test-wiremock-extension", "9cookies-wiremock-extensions.jar").toFile()));
+
+    @Test
+    public void testJSONBodyTransformer() throws Exception {
+        final HttpClient client = HttpClient.newBuilder().build();
+        final HttpRequest request = HttpRequest.newBuilder()
+                .uri(wiremockServer.getRequestURI("json-body-transformer"))
+                .timeout(Duration.ofSeconds(10))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString("{\"name\":\"John Doe\"}")).build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertThat(response.body()).as("Wrong response body")
+                .contains("Hello, John Doe!");
+    }
+}
+```
 ## Contributing
 
 All contributions are welcome!
