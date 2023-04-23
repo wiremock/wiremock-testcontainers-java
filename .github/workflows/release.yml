@@ -2,6 +2,10 @@ name: Release to GitHub Packages
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version'
+        required: true
 
 jobs:
   release:
@@ -30,28 +34,29 @@ jobs:
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
  
- #     - name: Setup Git user
- #       uses: fregante/setup-git-user@v2 
- #       
-#      - name: Setup SSH Keys and known_hosts
-#        env:
-#          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-#        run: |
-#            mkdir -p ~/.ssh
-#            ssh-keyscan github.com >> ~/.ssh/known_hosts
-#            ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-#            ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
+      - name: Set Release Version
+        id: vars
+        shell: bash
+        run: |
+          echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          echo ${{ github.event.inputs.version }} > VERSION
+          mvn versions:set -DnewVersion=${{ github.event.inputs.version }}-SNAPSHOT
+          git commit -m "Releasing version ${{ github.event.inputs.version }}" pom.xml
+          git push origin main
         
       - name: Publish to GitHub Packages
         run: mvn -ntp -B release:prepare release:perform
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
-      # Create a release
+      # Create a GitHub Release
+      # TODO (oleg-nenashev): Consider switching to Release Drafter if there is not significant value except fancy changelog
+      # ... So far we do not plan to automate release announcements, and artifacts can be attached to the release via another step
       - name: Run JReleaser
         uses: jreleaser/release-action@v2
         env:
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JRELEASER_PROJECT_VERSION: ${{ github.event.inputs.version }}
 
       # Persist JReleaser logs
       - name: JReleaser release output

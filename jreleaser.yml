@@ -6,6 +6,7 @@ project:
     homepage: https://github.com/wiremock/wiremock-testcontainers-java
   authors:
     - Oleg Nenashev
+    - WireMock contributors
   license: APACHE-2.0
   inceptionYear: 2023
   stereotype: none
