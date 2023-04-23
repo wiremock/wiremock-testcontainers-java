@@ -39,9 +39,8 @@ jobs:
         shell: bash
         run: |
           echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
-          mvn versions:set -DnewVersion=${{ github.event.inputs.version }}-SNAPSHOT
-          git commit -m "Releasing version ${{ github.event.inputs.version }}" pom.xml
-          git push origin main
+          mvn -ntp -B versions:set -DnewVersion=${{ github.event.inputs.version }}-SNAPSHOT
+          git diff-index --quiet HEAD || git commit -m "Releasing version ${{ github.event.inputs.version }}" pom.xml
         
       - name: Publish to GitHub Packages
         run: mvn -ntp -B release:prepare release:perform
