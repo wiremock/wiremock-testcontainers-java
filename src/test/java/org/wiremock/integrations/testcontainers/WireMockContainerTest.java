@@ -42,7 +42,7 @@ public class WireMockContainerTest {
                 .header("Content-Type", "application/json")
                 .GET().build();
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        final HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertThat(response.body())
                 .as("Wrong response body")
@@ -51,18 +51,14 @@ public class WireMockContainerTest {
 
     @Test
     public void helloWorldFromFile() throws Exception {
-        final HttpClient client = HttpClient.newBuilder()
-                .version(HttpClient.Version.HTTP_1_1)
-                .build();
-
-        HttpRequest request = HttpRequest.newBuilder()
+        final HttpClient client = HttpClient.newBuilder().build();
+        final HttpRequest request = HttpRequest.newBuilder()
                 .uri(wiremockServer.getRequestURI("hello-from-file"))
                 .timeout(Duration.ofSeconds(10))
                 .header("Content-Type", "application/json")
-                .GET()
-                .build();
+                .GET().build();
 
-        HttpResponse<String> response =
+        final HttpResponse<String> response =
                 client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertThat(response.body())
