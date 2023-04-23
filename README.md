@@ -140,7 +140,7 @@ Mapping definition:
 
 Test sample:
 
-##### Sample code in JUnit 4
+##### Sample code using JUnit 4
 ```java
 public class WireMockContainerExtensionTest {
     @Rule
@@ -166,7 +166,7 @@ public class WireMockContainerExtensionTest {
 }
 ```
 
-##### Sample code in JUnit 5
+##### Sample code using JUnit 5
 ```java
 @Testcontainers
 public class WireMockContainerExtensionJUnit5Test {
