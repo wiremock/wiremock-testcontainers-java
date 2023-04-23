@@ -34,6 +34,49 @@ A common example is using Wiremock 3.x with Java 1.8.
 
 P.S: Javadoc is coming soon!
 
+#### Sample Code using JUnit 5
+
+```java
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import org.junit.jupiter.api.Test;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+@Testcontainers
+public class WireMockContainerJUnit5Test {
+
+  @Container
+  public WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
+      .withMapping("hello", WireMockContainerTest.class, "hello-world.json")
+      .withMapping("hello-resource", WireMockContainerTest.class, "hello-world-resource.json")
+      .withFileFromResource("hello-world-resource-response.xml", WireMockContainerTest.class,
+          "hello-world-resource-response.xml");
+
+  @Test
+  public void helloWorld() throws Exception {
+    final HttpClient client = HttpClient.newBuilder().build();
+    final HttpRequest request = HttpRequest.newBuilder()
+        .uri(wiremockServer.getRequestURI("hello"))
+        .timeout(Duration.ofSeconds(10))
+        .header("Content-Type", "application/json")
+        .GET().build();
+
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+    assertThat(response.body())
+        .as("Wrong response body")
+        .contains("Hello, world!");
+  }
+}
+```
+
+#### Sample Code using JUnit 4
+
 ```java
 import org.wiremock.integrations.testcontainers.WireMockContainer;
 import org.junit.Rule;
@@ -139,6 +182,37 @@ Mapping definition:
 ```
 
 Test sample:
+
+##### Sample code using JUnit 5
+
+```java
+@Testcontainers
+public class WireMockContainerExtensionJUnit5Test {
+
+  @Container
+  public WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
+      .withMapping("json-body-transformer", WireMockContainerExtensionTest.class, "json-body-transformer.json")
+      .withExtension("JSON Body Transformer", Collections.singleton("com.ninecookies.wiremock.extensions.JsonBodyTransformer"),
+          Collections.singleton(Paths.get("target", "test-wiremock-extension", "9cookies-wiremock-extensions.jar").toFile()));
+
+  @Test
+  public void testJSONBodyTransformer() throws Exception {
+    final HttpClient client = HttpClient.newBuilder().build();
+    final HttpRequest request = HttpRequest.newBuilder()
+        .uri(wiremockServer.getRequestURI("json-body-transformer"))
+        .timeout(Duration.ofSeconds(10))
+        .header("Content-Type", "application/json")
+        .POST(HttpRequest.BodyPublishers.ofString("{\"name\":\"John Doe\"}")).build();
+
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+    assertThat(response.body()).as("Wrong response body")
+        .contains("Hello, John Doe!");
+  }
+}
+```
+
+##### Sample code using JUnit 4
 
 ```java
 public class WireMockContainerExtensionTest {
