@@ -146,6 +146,11 @@
                   <version>0.4.1</version>
                   <classifier>jar-with-dependencies</classifier>
                 </artifactItem>
+                <dependency>
+                  <groupId>org.wiremock</groupId>
+                  <artifactId>wiremock-webhooks-extension</artifactId>
+                  <version>2.35.0</version>
+                </dependency>
               </artifactItems>
               <outputDirectory>${project.build.directory}/test-wiremock-extension</outputDirectory>
             </configuration>
