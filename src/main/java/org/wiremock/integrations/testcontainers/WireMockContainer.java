@@ -33,6 +33,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.containers.wait.strategy.WaitStrategy;
 import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.shaded.com.google.common.io.Resources;
 import org.testcontainers.utility.MountableFile;
@@ -50,6 +52,11 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     private static final String FILES_DIR = "/home/wiremock/__files/";
 
     private static final String EXTENSIONS_DIR = "/var/wiremock/extensions/";
+
+    private static final WaitStrategy DEFAULT_WAITER = Wait
+            .forHttp("/__admin/mappings")
+            .withMethod("GET")
+            .forStatusCode(200);
 
     private static final int PORT = 8080;
 
@@ -193,6 +200,7 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     protected void configure() {
         super.configure();
         withExposedPorts(PORT);
+        waitingFor(DEFAULT_WAITER);
         for (Stub stub : mappingStubs.values()) {
             withCopyToContainer(Transferable.of(stub.json), MAPPINGS_DIR + stub.name + ".json");
         }
