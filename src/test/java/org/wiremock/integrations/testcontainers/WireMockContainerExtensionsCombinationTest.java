@@ -33,16 +33,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests the WireMock extension loading.
- * It uses the external Jar supplied by the Maven Dependency Plugin.
+ * It uses multiple external Jars supplied by the Maven Dependency Plugin.
  */
-public class WireMockContainerExtensionTest {
+public class WireMockContainerExtensionsCombinationTest {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(WireMockContainerExtensionTest.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(WireMockContainerExtensionsCombinationTest.class);
 
     @Rule
     public WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
-            .withStartupTimeout(Duration.ofSeconds(60))
-            .withMapping("json-body-transformer", WireMockContainerExtensionTest.class, "json-body-transformer.json")
+            .withMapping("json-body-transformer", WireMockContainerExtensionsCombinationTest.class, "json-body-transformer.json")
+            .withExtension("Webhook",
+                    Collections.singleton("org.wiremock.webhooks.Webhooks"),
+                    Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-webhooks-extension-2.35.0.jar").toFile()))
             .withExtension("JSON Body Transformer",
                     Collections.singleton("com.ninecookies.wiremock.extensions.JsonBodyTransformer"),
                     Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-extensions-0.4.1-jar-with-dependencies.jar").toFile()));

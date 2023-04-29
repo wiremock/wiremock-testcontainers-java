@@ -1,0 +1,16 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/json-body-transformer"
+  },
+  "response": {
+    "status": 201,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "jsonBody": {
+      "message": "Hello, $(name)!"
+    },
+    "transformers" : ["json-body-transformer"]
+  }
+}

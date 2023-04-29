@@ -219,11 +219,7 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
         }
         if (!extensionClassNames.isEmpty()) {
             wireMockArgs.append(" --extensions ");
-            int counter = 0;
-            for (String className : extensionClassNames) {
-                wireMockArgs.append(className);
-                wireMockArgs.append( (++counter != extensionClassNames.size()) ? ',' : ' ');
-            }
+            wireMockArgs.append(String.join(",", extensionClassNames));
         }
 
         // Add CLI arguments
