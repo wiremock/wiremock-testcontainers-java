@@ -1,6 +1,6 @@
 # Testcontainers Java module for WireMock
 
-[![a](https://img.shields.io/badge/slack-slack.wiremock.org-brightgreen?style=flat&logo=slack)](http://slack.wiremock.org/)
+[![a](https://img.shields.io/badge/slack-slack.wiremock.org-brightgreen?style=flat&logo=slack)](https://slack.wiremock.org/)
 
 > NOTE: This project is under development, the GitHub Packages release is coming soon.
 > Not all WireMock features are supported at the moment,
