@@ -18,6 +18,7 @@ package org.wiremock.integrations.testcontainers;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -37,7 +38,23 @@ public class WireMockContainerTest {
     public void helloWorld() throws Exception {
         final HttpClient client = HttpClient.newBuilder().build();
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(wiremockServer.getRequestURI("hello"))
+                .uri(URI.create(wiremockServer.getUrl("/hello")))
+                .timeout(Duration.ofSeconds(10))
+                .header("Content-Type", "application/json")
+                .GET().build();
+
+        final HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertThat(response.body())
+                .as("Wrong response body")
+                .contains("Hello, world!");
+    }
+
+    @Test
+    public void helloWorldWithoutLeadingSlashInPath() throws Exception {
+        final HttpClient client = HttpClient.newBuilder().build();
+        final HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(wiremockServer.getUrl("hello")))
                 .timeout(Duration.ofSeconds(10))
                 .header("Content-Type", "application/json")
                 .GET().build();
@@ -53,7 +70,7 @@ public class WireMockContainerTest {
     public void helloWorldFromFile() throws Exception {
         final HttpClient client = HttpClient.newBuilder().build();
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(wiremockServer.getRequestURI("hello-from-file"))
+                .uri(URI.create(wiremockServer.getUrl("/hello-from-file")))
                 .timeout(Duration.ofSeconds(10))
                 .header("Content-Type", "application/json")
                 .GET().build();

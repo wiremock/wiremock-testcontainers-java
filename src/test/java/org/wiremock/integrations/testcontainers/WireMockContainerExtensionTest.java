@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -56,7 +57,7 @@ public class WireMockContainerExtensionTest {
     public void testJSONBodyTransformer() throws Exception {
         final HttpClient client = HttpClient.newBuilder().build();
         final HttpRequest request = HttpRequest.newBuilder()
-                .uri(wiremockServer.getRequestURI("json-body-transformer"))
+                .uri(URI.create(wiremockServer.getUrl("/json-body-transformer")))
                 .timeout(Duration.ofSeconds(10))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString("{\"name\":\"John Doe\"}")).build();

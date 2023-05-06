@@ -17,8 +17,6 @@ package org.wiremock.integrations.testcontainers;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -184,15 +182,18 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
         return withExtension(id, Collections.singleton(className), Collections.emptyList());
     }
 
-    public String getEndpoint() {
-        return String.format("http://%s:%d", getHost(), getMappedPort(PORT));
+    public String getBaseUrl() {
+        return String.format("http://%s:%d", getHost(), getPort());
     }
 
-    public URI getRequestURI(String relativePath) throws URISyntaxException {
-        return new URI(getEndpoint() + "/" + relativePath);
+    public String getUrl(String path) {
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
+        return String.format("%s%s", getBaseUrl(), path);
     }
 
-    public Integer getServerPort() {
+    public Integer getPort() {
         return getMappedPort(PORT);
     }
 
