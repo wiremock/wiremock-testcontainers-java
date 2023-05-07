@@ -27,7 +27,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,12 +42,9 @@ public class WireMockContainerExtensionsCombinationTest {
     @Rule
     public WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
             .withMapping("json-body-transformer", WireMockContainerExtensionsCombinationTest.class, "json-body-transformer.json")
-            .withExtension("Webhook",
-                    Collections.singleton("org.wiremock.webhooks.Webhooks"),
-                    Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-webhooks-extension-2.35.0.jar").toFile()))
-            .withExtension("JSON Body Transformer",
-                    Collections.singleton("com.ninecookies.wiremock.extensions.JsonBodyTransformer"),
-                    Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-extensions-0.4.1-jar-with-dependencies.jar").toFile()));
+            .withExtension(
+                    List.of("org.wiremock.webhooks.Webhooks", "com.ninecookies.wiremock.extensions.JsonBodyTransformer"),
+                    Paths.get("target", "test-wiremock-extension"));
 
     @Before
     public void before() {
