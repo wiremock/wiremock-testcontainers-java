@@ -30,12 +30,13 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -65,7 +66,8 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     private final StringBuilder wireMockArgs;
     private final Map<String, Stub> mappingStubs = new HashMap<>();
     private final Map<String, MountableFile> mappingFiles = new HashMap<>();
-    private final Map<String, Extension> extensions = new HashMap<>();
+    private final Set<String> extensionClassNames = new LinkedHashSet<>();
+    private final Set<File> extensionJars = new LinkedHashSet<>();
     private boolean isBannerDisabled = true;
 
     /**
@@ -111,7 +113,7 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
         isBannerDisabled = false;
         return this;
     }
-    
+
     /**
      * Adds CLI argument to the WireMock call.
      * @param arg Argument
@@ -170,51 +172,59 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
 
     /**
      * Add extension that will be loaded from the specified JAR file.
-     * @param id Unique ID of the extension, for logging purposes
+     * @param classNames Class names of the extension to be included
+     * @param jar JAR to be included into the container
+     * @return this instance
+     */
+    public WireMockContainer withExtension(Collection<String> classNames, File jar) {
+        return withExtension(classNames, Collections.singleton(jar));
+    }
+
+    /**
+     * Add extension that will be loaded from the specified JAR file.
      * @param classNames Class names of the extension to be included
      * @param jars JARs to be included into the container
      * @return this instance
      */
-    public WireMockContainer withExtension(String id, Collection<String> classNames, Collection<File> jars) {
-        final Extension extension = new Extension(id);
-        extension.extensionClassNames.addAll(classNames);
-        extension.jars.addAll(jars);
-        extensions.put(id, extension);
+    public WireMockContainer withExtension(Collection<String> classNames, Collection<File> jars) {
+        extensionClassNames.addAll(classNames);
+        extensionJars.addAll(jars);
         return this;
     }
 
     /**
      * Add extension that will be loaded from the specified directory with JAR files.
-     * @param id Unique ID of the extension, for logging purposes
      * @param classNames Class names of the extension to be included
-     * @param jarDirectory Directory that stores all JARs
+     * @param jarsDirectory Directory that stores all JARs
      * @return this instance
      */
-    public WireMockContainer withExtension(String id, Collection<String> classNames, File jarDirectory) {
-        final List<File> jarsInTheDirectory;
-        try (Stream<Path> walk = Files.walk(jarDirectory.toPath())) {
-            jarsInTheDirectory = walk
+    public WireMockContainer withExtension(Collection<String> classNames, Path jarsDirectory) {
+        if (!Files.isDirectory(jarsDirectory)) {
+            throw new IllegalArgumentException("Path must refers to directory " + jarsDirectory);
+        }
+        try (Stream<Path> walk = Files.walk(jarsDirectory)) {
+
+            final List<File> jarsInTheDirectory = walk
                     .filter(p -> !Files.isDirectory(p))
                     .map(Path::toFile)
                     .filter(f -> f.toString().endsWith(".jar"))
                     .collect(Collectors.toList());
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Cannot list JARs in the directory " + jarDirectory, e);
-        }
+            return withExtension(classNames, jarsInTheDirectory);
 
-        return withExtension(id, classNames, jarsInTheDirectory);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Cannot list JARs in the directory " + jarsDirectory, e);
+        }
     }
 
     /**
      * Add extension that will be loaded from the classpath.
      * This method can be used if the extension is a part of the WireMock bundle,
-     * or a Jar is already added via {@link #withExtension(String, Collection, Collection)}}
-     * @param id Unique ID of the extension, for logging purposes
+     * or a Jar is already added via {@link #withExtension(Collection, Collection)}}
      * @param className Class name of the extension
      * @return this instance
      */
-    public WireMockContainer withExtension(String id, String className) {
-        return withExtension(id, Collections.singleton(className), Collections.emptyList());
+    public WireMockContainer withExtension(String className) {
+        return withExtension(Collections.singleton(className), Collections.emptyList());
     }
 
     public String getBaseUrl() {
@@ -244,13 +254,8 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
             withCopyToContainer(mount.getValue(), FILES_DIR + mount.getKey());
         }
 
-        final ArrayList<String> extensionClassNames = new ArrayList<>();
-        for (Map.Entry<String, Extension> entry : extensions.entrySet()) {
-            final Extension ext = entry.getValue();
-            extensionClassNames.addAll(ext.extensionClassNames);
-            for (File jar : ext.jars) {
-                withCopyToContainer(MountableFile.forHostPath(jar.toPath()), EXTENSIONS_DIR + jar.getName());
-            }
+        for (File jar : extensionJars) {
+            withCopyToContainer(MountableFile.forHostPath(jar.toPath()), EXTENSIONS_DIR + jar.getName());
         }
         if (!extensionClassNames.isEmpty()) {
             wireMockArgs.append(" --extensions ");
@@ -272,16 +277,6 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
         public Stub(String name, String json) {
             this.name = name;
             this.json = json;
-        }
-    }
-
-    private static final class Extension {
-        final String id;
-        final List<File> jars = new ArrayList<>();
-        final List<String> extensionClassNames = new ArrayList<>();
-
-        public Extension(String id) {
-            this.id = id;
         }
     }
 }
