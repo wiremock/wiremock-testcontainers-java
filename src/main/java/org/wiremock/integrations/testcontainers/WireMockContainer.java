@@ -77,6 +77,7 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     public WireMockContainer(String image, String version) {
         super(image + ":" + version);
         wireMockArgs = new StringBuilder();
+        setWaitStrategy(DEFAULT_WAITER);
     }
 
     /**
@@ -200,7 +201,6 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     protected void configure() {
         super.configure();
         withExposedPorts(PORT);
-        waitingFor(DEFAULT_WAITER);
         for (Stub stub : mappingStubs.values()) {
             withCopyToContainer(Transferable.of(stub.json), MAPPINGS_DIR + stub.name + ".json");
         }
