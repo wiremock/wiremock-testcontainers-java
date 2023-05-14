@@ -2,11 +2,14 @@ package org.wiremock.integrations.testcontainers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -20,11 +23,16 @@ public class WireMockContainerJUnit5Test {
       .withFileFromResource("hello-world-resource-response.xml", WireMockContainerTest.class,
           "hello-world-resource-response.xml");
 
-  @Test
-  public void helloWorld() throws Exception {
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+          "hello",
+          "/hello"
+  })
+  public void helloWorld(String path) throws Exception {
     final HttpClient client = HttpClient.newBuilder().build();
     final HttpRequest request = HttpRequest.newBuilder()
-        .uri(wiremockServer.getRequestURI("hello"))
+        .uri(URI.create(wiremockServer.getUrl(path)))
         .timeout(Duration.ofSeconds(10))
         .header("Content-Type", "application/json")
         .GET().build();
@@ -43,7 +51,7 @@ public class WireMockContainerJUnit5Test {
         .build();
 
     HttpRequest request = HttpRequest.newBuilder()
-        .uri(wiremockServer.getRequestURI("hello-from-file"))
+        .uri(URI.create(wiremockServer.getUrl("/hello-from-file")))
         .timeout(Duration.ofSeconds(10))
         .header("Content-Type", "application/json")
         .GET()
