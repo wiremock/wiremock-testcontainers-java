@@ -2,16 +2,13 @@ package org.wiremock.integrations.testcontainers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Duration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpClient;
 
 @Testcontainers
 public class WireMockContainerJUnit5Test {
@@ -30,15 +27,13 @@ public class WireMockContainerJUnit5Test {
           "/hello"
   })
   public void helloWorld(String path) throws Exception {
-    final HttpClient client = HttpClient.newBuilder().build();
-    final HttpRequest request = HttpRequest.newBuilder()
-        .uri(URI.create(wiremockServer.getUrl(path)))
-        .timeout(Duration.ofSeconds(10))
-        .header("Content-Type", "application/json")
-        .GET().build();
+    // given
+    String url = wiremockServer.getUrl(path);
 
-    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    // when
+    HttpResponse<String> response = TestHttpClient.newInstance().get(url);
 
+    // then
     assertThat(response.body())
         .as("Wrong response body")
         .contains("Hello, world!");
@@ -46,20 +41,13 @@ public class WireMockContainerJUnit5Test {
 
   @Test
   public void helloWorldFromFile() throws Exception {
-    final HttpClient client = HttpClient.newBuilder()
-        .version(HttpClient.Version.HTTP_1_1)
-        .build();
+    // given
+    String url = wiremockServer.getUrl("/hello-from-file");
 
-    HttpRequest request = HttpRequest.newBuilder()
-        .uri(URI.create(wiremockServer.getUrl("/hello-from-file")))
-        .timeout(Duration.ofSeconds(10))
-        .header("Content-Type", "application/json")
-        .GET()
-        .build();
+    // when
+    HttpResponse<String> response = TestHttpClient.newInstance().get(url);
 
-    HttpResponse<String> response =
-        client.send(request, HttpResponse.BodyHandlers.ofString());
-
+    // then
     assertThat(response.body())
         .as("Wrong response body")
         .contains("Hello, world!");
