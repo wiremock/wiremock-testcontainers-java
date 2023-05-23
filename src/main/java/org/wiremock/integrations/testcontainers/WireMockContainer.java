@@ -74,7 +74,16 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
         wireMockArgs = new StringBuilder();
         setWaitStrategy(DEFAULT_WAITER);
     }
-
+    
+    /**
+     * Enables the banner when starting WireMock container.
+     * @return this instance
+     */
+    public WireMockContainer withBanner() {
+        isBannerDisabled = false;
+        return this;
+    }
+    
     /**
      * Adds CLI argument to the WireMock call.
      * @param arg Argument
@@ -82,9 +91,6 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
      */
     public WireMockContainer withCliArg(String arg) {
         //TODO: Switch to framework with proper CLI escaping
-        if (arg.contains("--verbose")) {
-            isBannerDisabled = false;
-        }
         wireMockArgs.append(' ').append(arg);
         return this;
     }
@@ -250,5 +256,4 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
             this.id = id;
         }
     }
-
 }
