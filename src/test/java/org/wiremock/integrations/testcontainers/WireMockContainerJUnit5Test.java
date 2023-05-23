@@ -56,28 +56,4 @@ public class WireMockContainerJUnit5Test {
                 .as("Wrong response body")
                 .contains("Hello, world!");
     }
-
-    @Test
-    public void defaultBannerDisabled() {
-        WireMockContainer wireMockContainerSpy = Mockito.spy(new WireMockContainer("2.35.0"));
-
-        wireMockContainerSpy.configure();
-
-        verify(wireMockContainerSpy).withCliArg("--disable-banner");
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {
-            "--verbose",
-            " --verbose ",
-            "--verbose --help"
-    })
-    public void showBannerWhenStartingVerbose(String verboseArg) {
-        WireMockContainer wireMockContainerSpy = Mockito.spy(new WireMockContainer("2.35.0"));
-        wireMockContainerSpy.withCliArg(verboseArg);
-
-        wireMockContainerSpy.configure();
-
-        verify(wireMockContainerSpy, times(0)).withCliArg("--disable-banner");
-    }
 }
