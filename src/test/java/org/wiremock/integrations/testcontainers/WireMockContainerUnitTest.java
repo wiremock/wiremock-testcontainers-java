@@ -1,28 +1,31 @@
 package org.wiremock.integrations.testcontainers;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import java.util.Arrays;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WireMockContainerUnitTest {
 
     @Test
-    public void defaultBannerDisabled() {
-        WireMockContainer wireMockContainerSpy = Mockito.spy(new WireMockContainer("2.35.0"));
+    public void bannerIsByDefaultDisabled() {
+        WireMockContainer wireMockContainer = new WireMockContainer("2.35.0");
+        wireMockContainer.configure();
 
-        wireMockContainerSpy.configure();
+        String[] startUpArgs = wireMockContainer.getCommandParts();
 
-        verify(wireMockContainerSpy).withCliArg("--disable-banner");
+        assertTrue(Arrays.asList(startUpArgs).contains("--disable-banner"));
     }
 
     @Test
     public void enableBanner() {
-        WireMockContainer wireMockContainerSpy = Mockito.spy(new WireMockContainer("2.35.0")).withBanner();
-
+        WireMockContainer wireMockContainerSpy = new WireMockContainer("2.35.0").withBanner();
         wireMockContainerSpy.configure();
 
-        verify(wireMockContainerSpy, times(0)).withCliArg("--disable-banner");
+        String[] startUpArgs = wireMockContainerSpy.getCommandParts();
+
+        assertFalse(Arrays.asList(startUpArgs).contains("--disable-banner"));
     }
 }

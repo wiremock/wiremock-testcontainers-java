@@ -3,7 +3,6 @@ package org.wiremock.integrations.testcontainers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mockito;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpClient;
@@ -11,8 +10,6 @@ import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpClient;
 import java.net.http.HttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @Testcontainers
 public class WireMockContainerJUnit5Test {
