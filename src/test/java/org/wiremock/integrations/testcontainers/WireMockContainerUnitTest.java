@@ -21,11 +21,24 @@ public class WireMockContainerUnitTest {
 
     @Test
     public void enableBanner() {
-        WireMockContainer wireMockContainerSpy = new WireMockContainer("2.35.0").withBanner();
+        WireMockContainer wireMockContainerSpy = new WireMockContainer("2.35.0")
+                .withBanner();
         wireMockContainerSpy.configure();
 
         String[] startUpArgs = wireMockContainerSpy.getCommandParts();
 
         assertFalse(Arrays.asList(startUpArgs).contains("--disable-banner"));
+    }
+
+    @Test
+    public void disableBanner() {
+        WireMockContainer wireMockContainerSpy = new WireMockContainer("2.35.0")
+                .withBanner()
+                .withoutBanner();
+        wireMockContainerSpy.configure();
+
+        String[] startUpArgs = wireMockContainerSpy.getCommandParts();
+
+        assertTrue(Arrays.asList(startUpArgs).contains("--disable-banner"));
     }
 }

@@ -74,9 +74,18 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
         wireMockArgs = new StringBuilder();
         setWaitStrategy(DEFAULT_WAITER);
     }
-    
+
     /**
-     * Enables the banner when starting WireMock container.
+     * Disables the banner when starting the WireMock container.
+     * @return this instance
+     */
+    public WireMockContainer withoutBanner() {
+        isBannerDisabled = true;
+        return this;
+    }
+
+    /**
+     * Enable the banner when starting the WireMock container.
      * @return this instance
      */
     public WireMockContainer withBanner() {
