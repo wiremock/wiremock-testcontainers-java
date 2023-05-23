@@ -223,7 +223,7 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
             wireMockArgs.append(String.join(",", extensionClassNames));
         }
 
-        if(isBannerDisabled) {
+        if (isBannerDisabled) {
             this.withCliArg("--disable-banner");
         }
 
