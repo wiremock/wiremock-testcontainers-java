@@ -39,13 +39,10 @@ P.S: Javadoc is coming soon!
 ```java
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.net.http.*;
 import java.time.Duration;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.junit.jupiter.*;
 
 @Testcontainers
 public class WireMockContainerJUnit5Test {
@@ -77,15 +74,16 @@ public class WireMockContainerJUnit5Test {
 
 #### Sample Code using JUnit 4
 
+<details>
+<summary>
+Show Code
+</summary>
+
 ```java
 import org.wiremock.integrations.testcontainers.WireMockContainer;
-import org.junit.Rule;
-import org.junit.Test;
-
+import org.junit.*;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.net.http.*;
 import java.time.Duration;
 
 public class WireMockContainerTest {
@@ -112,7 +110,8 @@ public class WireMockContainerTest {
     }
 }
 ```
-
+</details>    
+    
 ### Using WireMock extensions
 
 The API supports adding [WireMock extensions](https://wiremock.org/docs/extending-wiremock/)
@@ -215,7 +214,13 @@ public class WireMockContainerExtensionJUnit5Test {
 
 ##### Sample code using JUnit 4
 
+<details>
+<summary>
+Show Code
+</summary> 
+    
 ```java
+
 public class WireMockContainerExtensionTest {
     @Rule
     public WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
@@ -238,7 +243,8 @@ public class WireMockContainerExtensionTest {
                 .contains("Hello, John Doe!");
     }
 }
-```
+```  
+</details>
 
 ## Contributing
 
