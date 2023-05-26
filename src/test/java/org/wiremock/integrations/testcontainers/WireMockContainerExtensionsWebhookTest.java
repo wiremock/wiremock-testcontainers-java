@@ -87,7 +87,7 @@ public class WireMockContainerExtensionsWebhookTest {
                     .contains(applicationCallbackUrl);
         });
 
-        await().atMost(Duration.ofMillis(10000)).untilAsserted(() -> {
+        await().atMost(Duration.ofMillis(5000)).untilAsserted(() -> {
             assertThat(applicationServer.getRecordedRequests()).as("Received Callback")
                     .hasSize(1)
                     .first().usingRecursiveComparison()

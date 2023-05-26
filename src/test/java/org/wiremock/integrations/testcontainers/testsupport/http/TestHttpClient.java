@@ -46,9 +46,9 @@ public final class TestHttpClient {
         connection.setDoOutput(true);
         connection.setConnectTimeout(10000);
 
-        try (OutputStream os = connection.getOutputStream()) {
+        try (OutputStream outputStream = connection.getOutputStream()) {
             byte[] input = body.getBytes(StandardCharsets.UTF_8);
-            os.write(input, 0, input.length);
+            outputStream.write(input, 0, input.length);
         }
 
         return send(connection);

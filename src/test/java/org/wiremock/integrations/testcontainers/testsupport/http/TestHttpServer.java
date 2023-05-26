@@ -57,8 +57,7 @@ public class TestHttpServer {
                 requestBody.read(requestBodyBytes);
                 body = new String(requestBodyBytes, StandardCharsets.UTF_8);
             }
-
-            // Do something with the request data
+            
             recordedRequests.add(new RecordedRequest(method, path, body));
 
             exchange.sendResponseHeaders(200, 0);
