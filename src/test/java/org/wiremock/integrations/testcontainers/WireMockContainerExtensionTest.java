@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpClient;
 
-import java.net.http.HttpResponse;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Collections;
@@ -58,10 +57,10 @@ public class WireMockContainerExtensionTest {
         String body = "{\"name\":\"John Doe\"}";
 
         // when
-        HttpResponse<String> response = TestHttpClient.newInstance().post(url, body);
+        String response = new TestHttpClient().post(url, body);
 
         // then
-        assertThat(response.body())
+        assertThat(response)
                 .as("Wrong response body")
                 .contains("Hello, John Doe!");
     }

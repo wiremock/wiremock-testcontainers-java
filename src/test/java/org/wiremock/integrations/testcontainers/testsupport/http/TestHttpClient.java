@@ -1,46 +1,53 @@
 package org.wiremock.integrations.testcontainers.testsupport.http;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 public final class TestHttpClient {
-    private final HttpClient client;
 
-    private TestHttpClient(HttpClient.Version version) {
-        client = HttpClient.newBuilder().version(version).build();
+    public String send(HttpURLConnection connection) throws IOException {
+        InputStream inputStream = connection.getInputStream();
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        StringBuilder response = new StringBuilder();
+
+        String line;
+        while ((line = reader.readLine()) != null) {
+            response.append(line);
+        }
+        reader.close();
+        return response.toString();
     }
 
-    public static TestHttpClient newInstance() {
-        return new TestHttpClient(HttpClient.Version.HTTP_1_1);
+    public String get(String uri) throws IOException {
+        URL url = new URL(uri);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+
+        return send(connection);
     }
 
-    public HttpResponse<String> send(HttpRequest request) throws IOException, InterruptedException {
-        return client.send(request, HttpResponse.BodyHandlers.ofString());
-    }
 
-    public HttpResponse<String> get(String uri) throws IOException, InterruptedException {
-        HttpRequest request = newRequestBuilder()
-                .uri(URI.create(uri))
-                .GET()
-                .build();
-        return send(request);
-    }
+    public String post(String uri, String body) throws IOException {
+        URL url = new URL(uri);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setRequestProperty("Accept", "application/json");
+        connection.setDoOutput(true);
+        connection.setConnectTimeout(10000);
 
-    public HttpResponse<String> post(String uri, String body) throws IOException, InterruptedException {
-        HttpRequest request = newRequestBuilder()
-                .uri(URI.create(uri))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(body))
-                .build();
-        return send(request);
-    }
+        try (OutputStream os = connection.getOutputStream()) {
+            byte[] input = body.getBytes(StandardCharsets.UTF_8);
+            os.write(input, 0, input.length);
+        }
 
-    private static HttpRequest.Builder newRequestBuilder() {
-        return HttpRequest.newBuilder()
-                .timeout(Duration.ofSeconds(10));
+        return send(connection);
     }
 }
