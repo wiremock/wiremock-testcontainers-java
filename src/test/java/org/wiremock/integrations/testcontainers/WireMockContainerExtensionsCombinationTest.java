@@ -55,9 +55,6 @@ public class WireMockContainerExtensionsCombinationTest {
 
     @Test
     public void testJSONBodyTransformer() throws Exception {
-
-        LOGGER.warn("Waiting for WireMock to start");
-
         // given
         String url = wiremockServer.getUrl("/json-body-transformer");
         String body = "{\"name\":\"John Doe\"}";
