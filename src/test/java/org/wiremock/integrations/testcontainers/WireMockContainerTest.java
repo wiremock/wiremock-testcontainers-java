@@ -17,6 +17,7 @@ package org.wiremock.integrations.testcontainers;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.wiremock.integrations.testcontainers.testsupport.http.HttpResponse;
 import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,10 +36,10 @@ public class WireMockContainerTest {
         String url = wiremockServer.getUrl("/hello");
 
         // when
-        String response = new TestHttpClient().get(url);
+        HttpResponse response = new TestHttpClient().get(url);
 
         // then
-        assertThat(response)
+        assertThat(response.getBody())
                 .as("Wrong response body")
                 .contains("Hello, world!");
     }
@@ -49,10 +50,10 @@ public class WireMockContainerTest {
         String url = wiremockServer.getUrl("hello");
 
         // when
-        String response = new TestHttpClient().get(url);
+        HttpResponse response = new TestHttpClient().get(url);
 
         // then
-        assertThat(response)
+        assertThat(response.getBody())
                 .as("Wrong response body")
                 .contains("Hello, world!");
     }
@@ -63,10 +64,10 @@ public class WireMockContainerTest {
         String url = wiremockServer.getUrl("/hello-from-file");
 
         // when
-        String response = new TestHttpClient().get(url);
+        HttpResponse response = new TestHttpClient().get(url);
 
         // then
-        assertThat(response)
+        assertThat(response.getBody())
                 .as("Wrong response body")
                 .contains("Hello, world!");
     }

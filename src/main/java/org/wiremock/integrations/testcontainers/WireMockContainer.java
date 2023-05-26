@@ -15,6 +15,13 @@
  */
 package org.wiremock.integrations.testcontainers;
 
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.containers.wait.strategy.WaitStrategy;
+import org.testcontainers.images.builder.Transferable;
+import org.testcontainers.shaded.com.google.common.io.Resources;
+import org.testcontainers.utility.MountableFile;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -30,13 +37,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.containers.wait.strategy.WaitStrategy;
-import org.testcontainers.images.builder.Transferable;
-import org.testcontainers.shaded.com.google.common.io.Resources;
-import org.testcontainers.utility.MountableFile;
-
 /**
  * Provisions WireMock standalone server as a container.
  * Designed to follow the WireMock Docker image ({@code wiremock/wiremock}) structure and configuration,
@@ -50,19 +50,16 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     private static final String FILES_DIR = "/home/wiremock/__files/";
 
     private static final String EXTENSIONS_DIR = "/var/wiremock/extensions/";
-
     private static final WaitStrategy DEFAULT_WAITER = Wait
             .forHttp("/__admin/mappings")
             .withMethod("GET")
             .forStatusCode(200);
-
     private static final int PORT = 8080;
-
     private final StringBuilder wireMockArgs;
-
     private final Map<String, Stub> mappingStubs = new HashMap<>();
     private final Map<String, MountableFile> mappingFiles = new HashMap<>();
     private final Map<String, Extension> extensions = new HashMap<>();
+    private boolean isBannerDisabled = true;
 
     public WireMockContainer() {
         this(DEFAULT_TAG);
@@ -78,6 +75,24 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
         setWaitStrategy(DEFAULT_WAITER);
     }
 
+    /**
+     * Disables the banner when starting the WireMock container.
+     * @return this instance
+     */
+    public WireMockContainer withoutBanner() {
+        isBannerDisabled = true;
+        return this;
+    }
+
+    /**
+     * Enable the banner when starting the WireMock container.
+     * @return this instance
+     */
+    public WireMockContainer withBanner() {
+        isBannerDisabled = false;
+        return this;
+    }
+    
     /**
      * Adds CLI argument to the WireMock call.
      * @param arg Argument
@@ -223,6 +238,10 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
             wireMockArgs.append(String.join(",", extensionClassNames));
         }
 
+        if (isBannerDisabled) {
+            this.withCliArg("--disable-banner");
+        }
+
         // Add CLI arguments
         withCommand(wireMockArgs.toString());
     }
@@ -231,7 +250,7 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
         final String name;
         final String json;
 
-        public Stub (String name, String json) {
+        public Stub(String name, String json) {
             this.name = name;
             this.json = json;
         }
@@ -246,5 +265,4 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
             this.id = id;
         }
     }
-
 }

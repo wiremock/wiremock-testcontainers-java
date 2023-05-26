@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 
 public final class TestHttpClient {
 
-    public String send(HttpURLConnection connection) throws IOException {
+    public HttpResponse send(HttpURLConnection connection) throws IOException {
         InputStream inputStream = connection.getInputStream();
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -22,10 +22,13 @@ public final class TestHttpClient {
             response.append(line);
         }
         reader.close();
-        return response.toString();
+        
+        
+        
+        return new HttpResponse(response.toString(), connection.getResponseCode());
     }
 
-    public String get(String uri) throws IOException {
+    public HttpResponse get(String uri) throws IOException {
         URL url = new URL(uri);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
@@ -34,7 +37,7 @@ public final class TestHttpClient {
     }
 
 
-    public String post(String uri, String body) throws IOException {
+    public HttpResponse post(String uri, String body) throws IOException {
         URL url = new URL(uri);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");

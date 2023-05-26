@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.wiremock.integrations.testcontainers.testsupport.http.HttpResponse;
 import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpClient;
 
 import java.nio.file.Paths;
@@ -56,20 +57,17 @@ public class WireMockContainerExtensionsCombinationTest {
     public void testJSONBodyTransformer() throws Exception {
 
         LOGGER.warn("Waiting for WireMock to start");
-        TimeUnit.SECONDS.sleep(20);
-
 
         // given
         String url = wiremockServer.getUrl("/json-body-transformer");
         String body = "{\"name\":\"John Doe\"}";
 
         // when
-        String response = new TestHttpClient().post(url, body);
+        HttpResponse response = new TestHttpClient().post(url, body);
 
         // then
-        assertThat(response)
+        assertThat(response.getBody())
                 .as("Wrong response body")
                 .contains("Hello, John Doe!");
     }
-
 }
