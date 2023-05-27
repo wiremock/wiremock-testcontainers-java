@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -48,10 +49,15 @@ public class TestHttpServer {
         public void handle(HttpExchange exchange) throws IOException {
             String method = exchange.getRequestMethod();
             String path = exchange.getRequestURI().getPath();
-            String body = exchange.getRequestBody().available() > 0
-                    ? new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8)
-                    : null;
+            String body = null;
 
+            InputStream requestBody = exchange.getRequestBody();
+            if (requestBody.available() > 0) {
+                byte[] requestBodyBytes = new byte[requestBody.available()];
+                requestBody.read(requestBodyBytes);
+                body = new String(requestBodyBytes, StandardCharsets.UTF_8);
+            }
+            
             recordedRequests.add(new RecordedRequest(method, path, body));
 
             exchange.sendResponseHeaders(200, 0);

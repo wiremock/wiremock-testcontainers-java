@@ -22,10 +22,10 @@ import org.slf4j.LoggerFactory;
 import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.wiremock.integrations.testcontainers.testsupport.http.HttpResponse;
 import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpClient;
 import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpServer;
 
-import java.net.http.HttpResponse;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Collections;
@@ -73,15 +73,15 @@ public class WireMockContainerExtensionsWebhookTest {
         String applicationCallbackUrl = String.format("http://%s:%d%s", GenericContainer.INTERNAL_HOST_HOSTNAME, applicationServer.getPort(), APPLICATION_PATH);
 
         // when
-        HttpResponse<String> response = TestHttpClient.newInstance().post(
+        HttpResponse response = new TestHttpClient().post(
                 wiremockUrl,
                 "{\"callbackMethod\": \"PUT\", \"callbackUrl\": \"" + applicationCallbackUrl + "\"}"
         );
 
         // then
         assertThat(response).as("Wiremock Response").isNotNull().satisfies(it -> {
-            assertThat(it.statusCode()).as("Wiremock Response Status").isEqualTo(200);
-            assertThat(it.body()).as("Wiremock Response Body")
+            assertThat(it.getStatusCode()).as("Wiremock Response Status").isEqualTo(200);
+            assertThat(it.getBody()).as("Wiremock Response Body")
                     .contains("Please wait callback")
                     .contains("PUT")
                     .contains(applicationCallbackUrl);

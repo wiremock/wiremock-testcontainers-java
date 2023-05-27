@@ -21,11 +21,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.wiremock.integrations.testcontainers.testsupport.http.HttpResponse;
 import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpClient;
 
-import java.net.http.HttpResponse;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,12 +60,11 @@ public class WireMockContainerExtensionsCombinationTest {
         String body = "{\"name\":\"John Doe\"}";
 
         // when
-        HttpResponse<String> response = TestHttpClient.newInstance().post(url, body);
+        HttpResponse response = new TestHttpClient().post(url, body);
 
         // then
-        assertThat(response.body())
+        assertThat(response.getBody())
                 .as("Wrong response body")
                 .contains("Hello, John Doe!");
     }
-
 }
