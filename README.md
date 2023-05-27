@@ -1,6 +1,8 @@
 # Testcontainers Java module for WireMock
 
-[![a](https://img.shields.io/badge/slack-slack.wiremock.org-brightgreen?style=flat&logo=slack)](https://slack.wiremock.org/)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/wiremock/wiremock-testcontainers-java)](https://github.com/wiremock/wiremock-testcontainers-java/releases)
+[![Slack](https://img.shields.io/badge/slack-slack.wiremock.org-brightgreen?style=flat&logo=slack)](https://slack.wiremock.org/)
+[![GitHub contributors](https://img.shields.io/github/contributors/wiremock/wiremock-testcontainers-java)](https://github.com/wiremock/wiremock-testcontainers-java/graphs/contributors)
 
 > NOTE: This project is under development, the GitHub Packages release is coming soon.
 > Not all WireMock features are supported at the moment,
@@ -248,6 +250,9 @@ public class WireMockContainerExtensionTest {
 
 ## Contributing
 
+This repository is implemented as a standard Maven project.
 All contributions are welcome!
 Just submit a pull request.
 
+See [this page](https://wiremock.org/docs/participate/) for a generic WireMock Contributor Guide
+    
