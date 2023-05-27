@@ -15,35 +15,25 @@
  */
 package org.wiremock.integrations.testcontainers;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.junit.Rule;
+import org.junit.Test;
 import org.wiremock.integrations.testcontainers.testsupport.http.HttpResponse;
 import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Testcontainers(parallel = true)
-class WireMockContainerTest {
+public class WireMockContainerJunit4Test {
 
-    @Container
-    WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
+    @Rule
+    public WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
             .withMapping("hello", WireMockContainerTest.class, "hello-world.json")
             .withMapping("hello-resource", WireMockContainerTest.class, "hello-world-resource.json")
-            .withFileFromResource("hello-world-resource-response.xml", WireMockContainerTest.class,
-                    "hello-world-resource-response.xml");
+            .withFileFromResource("hello-world-resource-response.xml", WireMockContainerTest.class, "hello-world-resource-response.xml");
 
-
-    @ParameterizedTest
-    @ValueSource(strings = {
-            "hello",
-            "/hello"
-    })
-    void helloWorld(String path) throws Exception {
+    @Test
+    public void helloWorld() throws Exception {
         // given
-        String url = wiremockServer.getUrl(path);
+        String url = wiremockServer.getUrl("/hello");
 
         // when
         HttpResponse response = new TestHttpClient().get(url);
@@ -55,7 +45,21 @@ class WireMockContainerTest {
     }
 
     @Test
-    void helloWorldFromFile() throws Exception {
+    public void helloWorldWithoutLeadingSlashInPath() throws Exception {
+        // given
+        String url = wiremockServer.getUrl("hello");
+
+        // when
+        HttpResponse response = new TestHttpClient().get(url);
+
+        // then
+        assertThat(response.getBody())
+                .as("Wrong response body")
+                .contains("Hello, world!");
+    }
+
+    @Test
+    public void helloWorldFromFile() throws Exception {
         // given
         String url = wiremockServer.getUrl("/hello-from-file");
 

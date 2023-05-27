@@ -39,38 +39,32 @@ P.S: Javadoc is coming soon!
 #### Sample Code using JUnit 5
 
 ```java
+import org.junit.jupiter.api.*;
+import org.testcontainers.junit.jupiter.*;
+import org.wiremock.integrations.testcontainers.testsupport.http.*;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.net.http.*;
-import java.time.Duration;
-import org.junit.jupiter.api.Test;
-import org.testcontainers.junit.jupiter.*;
-
 @Testcontainers
-public class WireMockContainerJUnit5Test {
+class WireMockContainerJunit5Test {
 
-  @Container
-  public WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
-      .withMapping("hello", WireMockContainerTest.class, "hello-world.json")
-      .withMapping("hello-resource", WireMockContainerTest.class, "hello-world-resource.json")
-      .withFileFromResource("hello-world-resource-response.xml", WireMockContainerTest.class,
-          "hello-world-resource-response.xml");
+    @Container
+    WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
+            .withMapping("hello", WireMockContainerJunit5Test.class, "hello-world.json");
 
-  @Test
-  public void helloWorld() throws Exception {
-    final HttpClient client = HttpClient.newBuilder().build();
-    final HttpRequest request = HttpRequest.newBuilder()
-        .uri(URI.create(wiremockServer.getUrl("/hello")))
-        .timeout(Duration.ofSeconds(10))
-        .header("Content-Type", "application/json")
-        .GET().build();
+    @Test
+    void helloWorld() throws Exception {
+        // given
+        String url = wiremockServer.getUrl("/hello");
 
-    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        // when
+        HttpResponse response = new TestHttpClient().get(url);
 
-    assertThat(response.body())
-        .as("Wrong response body")
-        .contains("Hello, world!");
-  }
+        // then
+        assertThat(response.getBody())
+                .as("Wrong response body")
+                .contains("Hello, world!");
+    }
 }
 ```
 
@@ -82,31 +76,27 @@ Show Code
 </summary>
 
 ```java
-import org.wiremock.integrations.testcontainers.WireMockContainer;
 import org.junit.*;
-import java.net.URI;
-import java.net.http.*;
-import java.time.Duration;
+import org.wiremock.integrations.testcontainers.testsupport.http.*;
 
-public class WireMockContainerTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class WireMockContainerJunit4Test {
 
     @Rule
     public WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
-            .withMapping("hello", WireMockContainerTest.class, "hello-world.json");
+            .withMapping("hello", WireMockContainerJunit4Test.class, "hello-world.json");
 
     @Test
     public void helloWorld() throws Exception {
-        final HttpClient client = HttpClient.newBuilder().build();
-        final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(wiremockServer.getUrl("/hello")))
-                .timeout(Duration.ofSeconds(10))
-                .header("Content-Type", "application/json")
-                .GET().build();
+        // given
+        String url = wiremockServer.getUrl("/hello");
 
-        HttpResponse<String> response =
-                client.send(request, HttpResponse.BodyHandlers.ofString());
+        // when
+        HttpResponse response = new TestHttpClient().get(url);
 
-        assertThat(response.body())
+        // then
+        assertThat(response.getBody())
                 .as("Wrong response body")
                 .contains("Hello, world!");
     }
@@ -188,29 +178,38 @@ Test sample:
 ##### Sample code using JUnit 5
 
 ```java
+import org.junit.jupiter.api.*;
+import org.testcontainers.junit.jupiter.*;
+import org.wiremock.integrations.testcontainers.testsupport.http.*;
+
+import java.nio.file.Paths;
+import java.util.Collections;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 @Testcontainers
-public class WireMockContainerExtensionJUnit5Test {
+class WireMockContainerExtensionJunit5Test {
 
-  @Container
-  public WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
-      .withMapping("json-body-transformer", WireMockContainerExtensionTest.class, "json-body-transformer.json")
-      .withExtension("JSON Body Transformer", Collections.singleton("com.ninecookies.wiremock.extensions.JsonBodyTransformer"),
-          Collections.singleton(Paths.get("target", "test-wiremock-extension", "9cookies-wiremock-extensions.jar").toFile()));
+    @Container
+    WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
+            .withMapping("json-body-transformer", WireMockContainerExtensionJunit5Test.class, "json-body-transformer.json")
+            .withExtension("JSON Body Transformer",
+                    Collections.singleton("com.ninecookies.wiremock.extensions.JsonBodyTransformer"),
+                    Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-extensions-0.4.1-jar-with-dependencies.jar").toFile()));
 
-  @Test
-  public void testJSONBodyTransformer() throws Exception {
-    final HttpClient client = HttpClient.newBuilder().build();
-    final HttpRequest request = HttpRequest.newBuilder()
-        .uri(URI.create(wiremockServer.getUrl("/json-body-transformer")))
-        .timeout(Duration.ofSeconds(10))
-        .header("Content-Type", "application/json")
-        .POST(HttpRequest.BodyPublishers.ofString("{\"name\":\"John Doe\"}")).build();
+    @Test
+    void testJSONBodyTransformer() throws Exception {
+        // given
+        String url = wiremockServer.getUrl("/json-body-transformer");
+        String body = "{\"name\":\"John Doe\"}";
 
-    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        // when
+        HttpResponse response = new TestHttpClient().post(url, body);
 
-    assertThat(response.body()).as("Wrong response body")
-        .contains("Hello, John Doe!");
-  }
+        // then
+        assertThat(response.getBody()).as("Wrong response body")
+                .contains("Hello, John Doe!");
+    }
 }
 ```
 
@@ -222,26 +221,34 @@ Show Code
 </summary> 
     
 ```java
+import org.junit.*;
+import org.wiremock.integrations.testcontainers.testsupport.http.*;
 
-public class WireMockContainerExtensionTest {
+import java.nio.file.Paths;
+import java.util.Collections;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class WireMockContainerExtensionJunit4Test {
+
     @Rule
     public WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
-            .withMapping("json-body-transformer", WireMockContainerExtensionTest.class, "json-body-transformer.json")
-            .withExtension("JSON Body Transformer", Collections.singleton("com.ninecookies.wiremock.extensions.JsonBodyTransformer"),
-                    Collections.singleton(Paths.get("target", "test-wiremock-extension", "9cookies-wiremock-extensions.jar").toFile()));
+            .withMapping("json-body-transformer", WireMockContainerExtensionJunit4Test.class, "json-body-transformer.json")
+            .withExtension("JSON Body Transformer",
+                    Collections.singleton("com.ninecookies.wiremock.extensions.JsonBodyTransformer"),
+                    Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-extensions-0.4.1-jar-with-dependencies.jar").toFile()));
 
     @Test
     public void testJSONBodyTransformer() throws Exception {
-        final HttpClient client = HttpClient.newBuilder().build();
-        final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(wiremockServer.getUrl("/json-body-transformer")))
-                .timeout(Duration.ofSeconds(10))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString("{\"name\":\"John Doe\"}")).build();
+        // given
+        String url = wiremockServer.getUrl("/json-body-transformer");
+        String body = "{\"name\":\"John Doe\"}";
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        // when
+        HttpResponse response = new TestHttpClient().post(url, body);
 
-        assertThat(response.body()).as("Wrong response body")
+        // then
+        assertThat(response.getBody()).as("Wrong response body")
                 .contains("Hello, John Doe!");
     }
 }

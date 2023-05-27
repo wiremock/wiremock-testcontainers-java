@@ -15,13 +15,13 @@
  */
 package org.wiremock.integrations.testcontainers;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.wiremock.integrations.testcontainers.testsupport.http.HttpResponse;
 import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpClient;
 import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpServer;
@@ -31,6 +31,7 @@ import java.time.Duration;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.testcontainers.Testcontainers.exposeHostPorts;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
 /**
@@ -39,22 +40,23 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
  * <p>
  * Use {@link GenericContainer#withAccessToHost(boolean)} to force the host access mechanism
  * <p>
- * Use {@link Testcontainers#exposeHostPorts(int...)} to expose host machine ports to containers
+ * Use {@link org.testcontainers.Testcontainers#exposeHostPorts(int...)} to expose host machine ports to containers
  * <p>
  * Use {@link GenericContainer#INTERNAL_HOST_HOSTNAME} to calculate hostname for callback
  *
  * @see <a href="https://www.testcontainers.org/features/networking/">Testcontainers Networking</a>
  */
-public class WireMockContainerExtensionsWebhookTest {
+@Testcontainers
+class WireMockContainerExtensionsWebhookTest {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(WireMockContainerExtensionsWebhookTest.class);
-    public static final String WIREMOCK_PATH = "/wiremock/callback-trigger";
-    public static final String APPLICATION_PATH = "/application/callback-receiver";
+    private static final Logger LOGGER = LoggerFactory.getLogger(WireMockContainerExtensionsWebhookTest.class);
+    private static final String WIREMOCK_PATH = "/wiremock/callback-trigger";
+    private static final String APPLICATION_PATH = "/application/callback-receiver";
 
 
-    public TestHttpServer applicationServer = TestHttpServer.newInstance();
-    @Rule
-    public WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
+    TestHttpServer applicationServer = TestHttpServer.newInstance();
+    @Container
+    WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
             .withLogConsumer(new Slf4jLogConsumer(LOGGER))
             .withCliArg("--global-response-templating")
             .withMapping("webhook-callback-template", WireMockContainerExtensionsWebhookTest.class, "webhook-callback-template.json")
@@ -65,9 +67,9 @@ public class WireMockContainerExtensionsWebhookTest {
 
 
     @Test
-    public void callbackUsingJsonStub() throws Exception {
+    void callbackUsingJsonStub() throws Exception {
         // given
-        Testcontainers.exposeHostPorts(applicationServer.getPort()); // Exposing host ports to the container
+        exposeHostPorts(applicationServer.getPort()); // Exposing host ports to the container
 
         String wiremockUrl = wiremockServer.getUrl(WIREMOCK_PATH);
         String applicationCallbackUrl = String.format("http://%s:%d%s", GenericContainer.INTERNAL_HOST_HOSTNAME, applicationServer.getPort(), APPLICATION_PATH);
