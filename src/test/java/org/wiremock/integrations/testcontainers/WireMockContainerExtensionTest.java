@@ -15,12 +15,12 @@
  */
 package org.wiremock.integrations.testcontainers;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.wiremock.integrations.testcontainers.testsupport.http.HttpResponse;
 import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpClient;
 
@@ -34,25 +34,22 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests the WireMock extension loading.
  * It uses the external Jar supplied by the Maven Dependency Plugin.
  */
-public class WireMockContainerExtensionTest {
+@Testcontainers
+class WireMockContainerExtensionTest {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(WireMockContainerExtensionTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WireMockContainerExtensionTest.class);
 
-    @Rule
-    public WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
+    @Container
+    WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
+            .withLogConsumer(new Slf4jLogConsumer(LOGGER))
             .withStartupTimeout(Duration.ofSeconds(60))
             .withMapping("json-body-transformer", WireMockContainerExtensionTest.class, "json-body-transformer.json")
             .withExtension("JSON Body Transformer",
                     Collections.singleton("com.ninecookies.wiremock.extensions.JsonBodyTransformer"),
                     Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-extensions-0.4.1-jar-with-dependencies.jar").toFile()));
 
-    @Before
-    public void before() {
-        wiremockServer.followOutput(new Slf4jLogConsumer(LOGGER));
-    }
-
     @Test
-    public void testJSONBodyTransformer() throws Exception {
+    void testJSONBodyTransformer() throws Exception {
         // given
         String url = wiremockServer.getUrl("/json-body-transformer");
         String body = "{\"name\":\"John Doe\"}";

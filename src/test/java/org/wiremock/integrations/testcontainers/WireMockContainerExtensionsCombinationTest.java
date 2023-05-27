@@ -15,18 +15,17 @@
  */
 package org.wiremock.integrations.testcontainers;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.wiremock.integrations.testcontainers.testsupport.http.HttpResponse;
 import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpClient;
 
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,12 +33,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests the WireMock extension loading.
  * It uses multiple external Jars supplied by the Maven Dependency Plugin.
  */
-public class WireMockContainerExtensionsCombinationTest {
+@Testcontainers
+class WireMockContainerExtensionsCombinationTest {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(WireMockContainerExtensionsCombinationTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WireMockContainerExtensionsCombinationTest.class);
 
-    @Rule
-    public WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
+    @Container
+    WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
+            .withLogConsumer(new Slf4jLogConsumer(LOGGER))
             .withMapping("json-body-transformer", WireMockContainerExtensionsCombinationTest.class, "json-body-transformer.json")
             .withExtension("Webhook",
                     Collections.singleton("org.wiremock.webhooks.Webhooks"),
@@ -48,13 +49,8 @@ public class WireMockContainerExtensionsCombinationTest {
                     Collections.singleton("com.ninecookies.wiremock.extensions.JsonBodyTransformer"),
                     Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-extensions-0.4.1-jar-with-dependencies.jar").toFile()));
 
-    @Before
-    public void before() {
-        wiremockServer.followOutput(new Slf4jLogConsumer(LOGGER));
-    }
-
     @Test
-    public void testJSONBodyTransformer() throws Exception {
+    void testJSONBodyTransformer() throws Exception {
         // given
         String url = wiremockServer.getUrl("/json-body-transformer");
         String body = "{\"name\":\"John Doe\"}";
