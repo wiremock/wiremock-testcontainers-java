@@ -20,7 +20,7 @@
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <wiremock.version>2.35.0</wiremock.version>
-    <testcontainers.version>1.18.1</testcontainers.version>
+    <testcontainers.version>1.18.2</testcontainers.version>
     <junit.version>5.9.3</junit.version>
     <assertj.version>3.24.2</assertj.version>
     <awaitility.version>4.2.0</awaitility.version>
