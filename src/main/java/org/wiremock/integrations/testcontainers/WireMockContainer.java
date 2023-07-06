@@ -20,6 +20,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.containers.wait.strategy.WaitStrategy;
 import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.shaded.com.google.common.io.Resources;
+import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
 import java.io.File;
@@ -43,8 +44,11 @@ import java.util.stream.Stream;
  * but other images can be included too at your own risk.
  */
 public class WireMockContainer extends GenericContainer<WireMockContainer> {
-    private static final String DEFAULT_IMAGE_NAME = "wiremock/wiremock";
-    private static final String DEFAULT_TAG = "latest";
+
+    public static final String DEFAULT_IMAGE_NAME = "wiremock/wiremock";
+    public static final String DEFAULT_TAG = "2.35.0";
+    public static final DockerImageName DEFAULT =
+            DockerImageName.parse(DEFAULT_IMAGE_NAME + ":" + DEFAULT_TAG);
 
     private static final String MAPPINGS_DIR = "/home/wiremock/mappings/";
     private static final String FILES_DIR = "/home/wiremock/__files/";
@@ -61,16 +65,15 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     private final Map<String, Extension> extensions = new HashMap<>();
     private boolean isBannerDisabled = true;
 
-    public WireMockContainer() {
-        this(DEFAULT_TAG);
+    /**
+     * Create image from the specified full image name (repo, image, tag)
+     */
+    public WireMockContainer(String image) {
+        this(DockerImageName.parse(image));
     }
 
-    public WireMockContainer(String version) {
-        this(DEFAULT_IMAGE_NAME, version);
-    }
-
-    public WireMockContainer(String image, String version) {
-        super(image + ":" + version);
+    public WireMockContainer(DockerImageName dockerImage) {
+        super(dockerImage);
         wireMockArgs = new StringBuilder();
         setWaitStrategy(DEFAULT_WAITER);
     }

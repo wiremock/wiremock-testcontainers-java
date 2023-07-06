@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class WireMockContainerTest {
 
     @Container
-    WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
+    WireMockContainer wiremockServer = new WireMockContainer(WireMockContainer.DEFAULT)
             .withMapping("hello", WireMockContainerTest.class, "hello-world.json")
             .withMapping("hello-resource", WireMockContainerTest.class, "hello-world-resource.json")
             .withFileFromResource("hello-world-resource-response.xml", WireMockContainerTest.class,
