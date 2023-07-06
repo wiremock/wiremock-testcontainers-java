@@ -23,6 +23,64 @@ A common example is using Wiremock 3.x with Java 1.8.
 
 ### Importing the dependency
 
+At the moment the module is published to GitHub Packages only,
+see [Issue #56](https://github.com/wiremock/wiremock-testcontainers-java/issues/56)
+for publishing to Maven Central.
+For the moment, you can use the authenticated GitHub Packages server or
+[JitPack](https://jitpack.io/) to add the dependency in your projects.
+
+#### Maven / JitPack
+
+```xml
+  <dependencies>
+    <dependency>
+      <groupId>com.github.wiremock</groupId>
+      <artifactId>wiremock-testcontainers-java</artifactId>
+      <version>${wiremock-testcontainers.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- .... Other Dependencies -->
+  </dependencies>
+
+  <repositories>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
+  </repositories>
+```
+
+<details>
+<summary>
+Gradle / JitPack
+</summary>
+
+#### Gradle / JitPack
+
+```groovy
+  allprojects {
+		repositories {
+			maven { url 'https://jitpack.io' }
+		}
+	}
+
+  dependencies {
+		testImplementation 'com.github.wiremock:wiremock-testcontainers-java:${wiremock-testcontainers.version}'
+	}
+
+```
+</details>
+
+<details>
+<summary>
+Maven / GitHub Packages
+</summary>
+
+#### Maven / GitHub Packages
+
+GitHub Packages uses the official Maven coordinates,
+but you will need to configure the server and authentication.
+
 ```xml
     <dependency>
       <groupId>org.wiremock.integrations.testcontainers</groupId>
@@ -31,6 +89,8 @@ A common example is using Wiremock 3.x with Java 1.8.
       <scope>test</scope>
     </dependency>
 ```
+
+</details>
 
 ### Using the test container in JUnit 4/5
 
