@@ -20,6 +20,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.containers.wait.strategy.WaitStrategy;
 import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.shaded.com.google.common.io.Resources;
+import org.testcontainers.utility.ComparableVersion;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
@@ -45,8 +46,9 @@ import java.util.stream.Stream;
  */
 public class WireMockContainer extends GenericContainer<WireMockContainer> {
 
-    private static final String OFFICIAL_IMAGE_NAME = "wiremock/wiremock";
+    public static final String OFFICIAL_IMAGE_NAME = "wiremock/wiremock";
     private static final String WIREMOCK_2_LATEST_TAG = "2.35.0";
+    private static final String WIREMOCK_2_MINIMUM_SUPPORTED_VERSION = "2.0.0";
 
     public static final DockerImageName WIREMOCK_2_LATEST =
             DockerImageName.parse(OFFICIAL_IMAGE_NAME + ":" + WIREMOCK_2_LATEST_TAG);
@@ -75,6 +77,19 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
 
     public WireMockContainer(DockerImageName dockerImage) {
         super(dockerImage);
+        dockerImage.assertCompatibleWith(new DockerImageName(OFFICIAL_IMAGE_NAME));
+
+        // Verify the minimum version for the official image
+        final ComparableVersion version = new ComparableVersion(dockerImage.getVersionPart());
+        if (!version.isSemanticVersion()) { // Accept only images when compatibility is declared explicitly
+            // TODO: We cannot extract compatibleSubstituteFor from Testcontainers API - https://github.com/testcontainers/testcontainers-java/issues/7305
+        } else {
+            boolean isLessThanBaseVersion = version.isLessThan(WIREMOCK_2_MINIMUM_SUPPORTED_VERSION);
+            if (OFFICIAL_IMAGE_NAME.equals(dockerImage.getUnversionedPart()) && isLessThanBaseVersion) {
+                throw new IllegalArgumentException("For the official image, the WireMock version must be >= " + WIREMOCK_2_MINIMUM_SUPPORTED_VERSION);
+            }
+        }
+
         wireMockArgs = new StringBuilder();
         setWaitStrategy(DEFAULT_WAITER);
     }
