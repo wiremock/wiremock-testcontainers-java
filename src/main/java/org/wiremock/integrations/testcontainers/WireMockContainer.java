@@ -48,7 +48,7 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
 
     public static final String OFFICIAL_IMAGE_NAME = "wiremock/wiremock";
     private static final String WIREMOCK_2_LATEST_TAG = "2.35.0";
-    private static final String WIREMOCK_2_MINIMUM_SUPPORTED_VERSION = "2.0.0";
+    /*package*/ static final String WIREMOCK_2_MINIMUM_SUPPORTED_VERSION = "2.0.0";
 
     public static final DockerImageName WIREMOCK_2_LATEST =
             DockerImageName.parse(OFFICIAL_IMAGE_NAME + ":" + WIREMOCK_2_LATEST_TAG);

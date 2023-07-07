@@ -22,6 +22,17 @@ public class WireMockContainerUnitTest {
     }
 
     @Test
+    public void shouldFailForOlderImage() {
+        IllegalArgumentException ex = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            WireMockContainer container = new WireMockContainer(
+                    new DockerImageName(WireMockContainer.OFFICIAL_IMAGE_NAME, "1.239.0"));
+        });
+        assertThat(ex.getMessage())
+                .as("Wrong exception message")
+                .contains("For the official image, the WireMock version must be >= " + WireMockContainer.WIREMOCK_2_MINIMUM_SUPPORTED_VERSION);
+    }
+
+    @Test
     public void shouldInitWithVersionedTestImagesWithSubstitution() {
         // TODO: Should it be accepted by default
         WireMockContainer container = new WireMockContainer(
