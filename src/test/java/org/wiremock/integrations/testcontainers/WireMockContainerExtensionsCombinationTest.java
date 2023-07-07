@@ -39,7 +39,7 @@ class WireMockContainerExtensionsCombinationTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(WireMockContainerExtensionsCombinationTest.class);
 
     @Container
-    WireMockContainer wiremockServer = new WireMockContainer(WireMockContainer.DEFAULT)
+    WireMockContainer wiremockServer = new WireMockContainer(WireMockContainer.WIREMOCK_2_LATEST)
             .withLogConsumer(new Slf4jLogConsumer(LOGGER))
             .withMapping("json-body-transformer", WireMockContainerExtensionsCombinationTest.class, "json-body-transformer.json")
             .withExtension("Webhook",

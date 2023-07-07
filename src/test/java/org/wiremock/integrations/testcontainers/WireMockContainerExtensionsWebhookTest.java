@@ -56,7 +56,7 @@ class WireMockContainerExtensionsWebhookTest {
 
     TestHttpServer applicationServer = TestHttpServer.newInstance();
     @Container
-    WireMockContainer wiremockServer = new WireMockContainer(WireMockContainer.DEFAULT)
+    WireMockContainer wiremockServer = new WireMockContainer(WireMockContainer.WIREMOCK_2_LATEST)
             .withLogConsumer(new Slf4jLogConsumer(LOGGER))
             .withCliArg("--global-response-templating")
             .withMapping("webhook-callback-template", WireMockContainerExtensionsWebhookTest.class, "webhook-callback-template.json")

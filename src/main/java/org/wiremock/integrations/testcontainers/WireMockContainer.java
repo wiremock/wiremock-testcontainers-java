@@ -45,10 +45,11 @@ import java.util.stream.Stream;
  */
 public class WireMockContainer extends GenericContainer<WireMockContainer> {
 
-    public static final String DEFAULT_IMAGE_NAME = "wiremock/wiremock";
-    public static final String DEFAULT_TAG = "2.35.0";
-    public static final DockerImageName DEFAULT =
-            DockerImageName.parse(DEFAULT_IMAGE_NAME + ":" + DEFAULT_TAG);
+    private static final String OFFICIAL_IMAGE_NAME = "wiremock/wiremock";
+    private static final String WIREMOCK_2_LATEST_TAG = "2.35.0";
+
+    public static final DockerImageName WIREMOCK_2_LATEST =
+            DockerImageName.parse(OFFICIAL_IMAGE_NAME + ":" + WIREMOCK_2_LATEST_TAG);
 
     private static final String MAPPINGS_DIR = "/home/wiremock/mappings/";
     private static final String FILES_DIR = "/home/wiremock/__files/";
