@@ -15,9 +15,19 @@ within your unit test, based on [WireMock Docker](https://github.com/wiremock/wi
 
 While you can run [WireMock Java](https://github.com/wiremock/wiremock)
 with the same result for the most of the use-cases,
-it might be helpful to isolate JVMs or to run on 
+it might be helpful to isolate JVMs or to run on
 Java versions and platforms not supported by WireMock.
 A common example is using Wiremock 3.x with Java 1.8.
+
+## Compatibility
+
+The module is compatible with the following WireMock versions:
+
+- WireMock (aka WireMock Java) `2.0.0` and above
+- WireMock (aka WireMock Java) `3.0.0` beta versions
+
+Other WireMock implementations may work but have not been tested yet.
+Please feel free to contribute the integration tests and compatibility layers!
 
 ## Usage
 
@@ -109,7 +119,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class WireMockContainerJunit5Test {
 
     @Container
-    WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
+    WireMockContainer wiremockServer = new WireMockContainer("wiremock/wiremock:2.35.0")
             .withMapping("hello", WireMockContainerJunit5Test.class, "hello-world.json");
 
     @Test
@@ -144,7 +154,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class WireMockContainerJunit4Test {
 
     @Rule
-    public WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
+    public WireMockContainer wiremockServer = new WireMockContainer("wiremock/wiremock:2.35.0")
             .withMapping("hello", WireMockContainerJunit4Test.class, "hello-world.json");
 
     @Test
@@ -251,7 +261,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class WireMockContainerExtensionJunit5Test {
 
     @Container
-    WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
+    WireMockContainer wiremockServer = new WireMockContainer("wiremock/wiremock:2.35.0")
             .withMapping("json-body-transformer", WireMockContainerExtensionJunit5Test.class, "json-body-transformer.json")
             .withExtension("JSON Body Transformer",
                     Collections.singleton("com.ninecookies.wiremock.extensions.JsonBodyTransformer"),
@@ -292,7 +302,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class WireMockContainerExtensionJunit4Test {
 
     @Rule
-    public WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
+    public WireMockContainer wiremockServer = new WireMockContainer("wiremock/wiremock:2.35.0")
             .withMapping("json-body-transformer", WireMockContainerExtensionJunit4Test.class, "json-body-transformer.json")
             .withExtension("JSON Body Transformer",
                     Collections.singleton("com.ninecookies.wiremock.extensions.JsonBodyTransformer"),
