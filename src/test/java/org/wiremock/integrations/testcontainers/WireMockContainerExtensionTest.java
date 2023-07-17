@@ -40,7 +40,7 @@ class WireMockContainerExtensionTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(WireMockContainerExtensionTest.class);
 
     @Container
-    WireMockContainer wiremockServer = new WireMockContainer("2.35.0")
+    WireMockContainer wiremockServer = new WireMockContainer(WireMockContainer.WIREMOCK_2_LATEST)
             .withLogConsumer(new Slf4jLogConsumer(LOGGER))
             .withStartupTimeout(Duration.ofSeconds(60))
             .withMapping("json-body-transformer", WireMockContainerExtensionTest.class, "json-body-transformer.json")
