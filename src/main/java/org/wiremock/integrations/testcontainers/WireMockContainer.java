@@ -129,7 +129,7 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
      * @return This instance
      */
     public WireMockContainer withMappingFromJSON(String json) {
-        return withMapping(Integer.toString(json.hashCode()), json);
+        return withMappingFromJSON(Integer.toString(json.hashCode()), json);
     }
 
     /**
@@ -138,10 +138,18 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
      * @param json Configuration JSON
      * @return this instance
      */
-    public WireMockContainer withMapping(String name, String json) {
+    public WireMockContainer withMappingFromJSON(String name, String json) {
         mappingStubs.put(name, new Stub(name, json));
         // TODO: Prevent duplication
         return this;
+    }
+
+    /**
+     * @deprecated use {@link #withMappingFromJSON(String, String)}
+     */
+    @Deprecated
+    public WireMockContainer withMapping(String name, String json) {
+        return withMappingFromJSON(name, json);
     }
 
     /**
