@@ -44,9 +44,9 @@ class WireMockContainerExtensionTest {
             .withLogConsumer(new Slf4jLogConsumer(LOGGER))
             .withStartupTimeout(Duration.ofSeconds(60))
             .withMapping("json-body-transformer", WireMockContainerExtensionTest.class, "json-body-transformer.json")
-            .withExtension("JSON Body Transformer",
+            .withExtension(
                     Collections.singleton("com.ninecookies.wiremock.extensions.JsonBodyTransformer"),
-                    Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-extensions-0.4.1-jar-with-dependencies.jar").toFile()));
+                    Paths.get("target", "test-wiremock-extension", "wiremock-extensions-0.4.1-jar-with-dependencies.jar").toFile());
 
     @Test
     void testJSONBodyTransformer() throws Exception {
