@@ -124,6 +124,15 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     }
 
     /**
+     * Add mapping JSON file from its value
+     * @param json JSON sting
+     * @return This instance
+     */
+    public WireMockContainer withMappingFromJSON(String json) {
+        return withMapping(Integer.toString(json.hashCode()), json);
+    }
+
+    /**
      * Adds a JSON mapping stub to WireMock configuration
      * @param name Name of the mapping stub
      * @param json Configuration JSON
@@ -144,6 +153,17 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
      */
     public WireMockContainer withMappingFromResource(String name, Class<?> resource, String resourceJson) {
         return withMapping(name, resource.getSimpleName() + "/" + resourceJson);
+    }
+
+    /**
+     * Loads mapping stub from the class resource
+     * @param resource Resource class. Name of the class will be appended to the resource path
+     * @param resourceJson Mapping definition file
+     * @return this instance
+     */
+    public WireMockContainer withMappingFromResource(Class<?> resource, String resourceJson) {
+        final String id = resource.getName() + "_" + resourceJson;
+        return withMapping(id, resource.getSimpleName() + "/" + resourceJson);
     }
 
     /**
@@ -172,6 +192,16 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
 
     /**
      * Loads mapping stub from the resource file
+     * @param resourceName Resource name and path
+     * @return this instance
+     */
+    public WireMockContainer withMappingFromResource(String resourceName) {
+        String id = resourceName.replace('/', '_');
+        return withMappingFromResource(id, resourceName);
+    }
+
+    /**
+     * Loads mapping stub from the resource file
      * @param name Name of the mapping stub
      * @param url Resource file URL
      * @return this instance
@@ -185,8 +215,25 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
         }
     }
 
+    /**
+     * Adds file
+     * @param name ID to be used
+     * @param file File to add
+     * @return This instance
+     */
     public WireMockContainer withFile(String name, File file) {
         mappingFiles.put(name, MountableFile.forHostPath(file.getPath()));
+        // TODO: Prevent duplication
+        return this;
+    }
+
+    /**
+     * Adds file
+     * @param file File to add
+     * @return This instance
+     */
+    public WireMockContainer withFile(File file) {
+        mappingFiles.put(file.getName(), MountableFile.forHostPath(file.getPath()));
         // TODO: Prevent duplication
         return this;
     }
@@ -197,8 +244,19 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
         return this;
     }
 
+    public WireMockContainer withFileFromResource(String classpathResource) {
+        String id = classpathResource.replace('/', '_');
+        // TODO: Prevent duplication
+        return withFileFromResource(id, classpathResource);
+    }
+
     public WireMockContainer withFileFromResource(String name, Class<?> resource, String filename) {
         return withFileFromResource(name, resource.getName().replace('.', '/') + "/" + filename);
+    }
+
+    public WireMockContainer withFileFromResource(Class<?> resource, String filename) {
+        String id = resource.getSimpleName() + "_" + filename;
+        return withFileFromResource(id, resource, filename);
     }
 
     /**
