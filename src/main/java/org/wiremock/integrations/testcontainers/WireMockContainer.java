@@ -142,9 +142,42 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
      * @param resourceJson Mapping definition file
      * @return this instance
      */
+    public WireMockContainer withMappingFromResource(String name, Class<?> resource, String resourceJson) {
+        return withMapping(name, resource.getSimpleName() + "/" + resourceJson);
+    }
+
+    /**
+     * @deprecated use {@link #withMappingFromResource(String, Class, String)}
+     */
+    @Deprecated
     public WireMockContainer withMapping(String name, Class<?> resource, String resourceJson) {
+        return withMappingFromResource(name, resource, resourceJson);
+    }
+
+    /**
+     * Loads mapping stub from the resource file
+     * @param name Name of the mapping stub
+     * @param resourceName Resource name and path
+     * @return this instance
+     */
+    public WireMockContainer withMappingFromResource(String name, String resourceName) {
         try {
-            URL url = Resources.getResource(resource, resource.getSimpleName() + "/" + resourceJson);
+            URL url = Resources.getResource(resourceName);
+            String text = Resources.toString(url, StandardCharsets.UTF_8);
+            return withMapping(name, text);
+        } catch (IOException ex) {
+            throw new IllegalArgumentException(ex);
+        }
+    }
+
+    /**
+     * Loads mapping stub from the resource file
+     * @param name Name of the mapping stub
+     * @param url Resource file URL
+     * @return this instance
+     */
+    public WireMockContainer withMappingFromResource(String name, URL url) {
+        try {
             String text = Resources.toString(url, StandardCharsets.UTF_8);
             return withMapping(name, text);
         } catch (IOException ex) {
