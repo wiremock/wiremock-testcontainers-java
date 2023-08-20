@@ -65,7 +65,7 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     private final StringBuilder wireMockArgs;
     private final Map<String, Stub> mappingStubs = new HashMap<>();
     private final Map<String, MountableFile> mappingFiles = new HashMap<>();
-    private final Map<String, Extension> extensions = new HashMap<>();
+    private final Map<String, WireMockPlugin> plugins = new HashMap<>();
     private boolean isBannerDisabled = true;
 
     /**
@@ -169,28 +169,39 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     }
 
     /**
-     * Add extension that will be loaded from the specified JAR file.
-     * @param id Unique ID of the extension, for logging purposes
+     * Add extension that will be loaded from the specified JAR files.
+     * In the internal engine, it will be handled as a single plugin.
      * @param classNames Class names of the extension to be included
      * @param jars JARs to be included into the container
      * @return this instance
      */
-    public WireMockContainer withExtension(String id, Collection<String> classNames, Collection<File> jars) {
-        final Extension extension = new Extension(id);
-        extension.extensionClassNames.addAll(classNames);
-        extension.jars.addAll(jars);
-        extensions.put(id, extension);
-        return this;
+    public WireMockContainer withExtensions(Collection<String> classNames, Collection<File> jars) {
+        return withExtensions(WireMockPlugin.guessPluginId(classNames, jars), classNames, jars);
+    }
+
+    /**
+     * Add extension that will be loaded from the specified JAR files.
+     * In the internal engine, it will be handled as a single plugin.
+     * @param id Identifier top use
+     * @param classNames Class names of the extension to be included
+     * @param jars JARs to be included into the container
+     * @return this instance
+     */
+    public WireMockContainer withExtensions(String id, Collection<String> classNames, Collection<File> jars) {
+        final WireMockPlugin extension = new WireMockPlugin(id)
+                .withExtensions(classNames)
+                .withJars(jars);
+        return withPlugin(extension);
     }
 
     /**
      * Add extension that will be loaded from the specified directory with JAR files.
-     * @param id Unique ID of the extension, for logging purposes
+     * In the internal engine, it will be handled as a single plugin.
      * @param classNames Class names of the extension to be included
      * @param jarDirectory Directory that stores all JARs
      * @return this instance
      */
-    public WireMockContainer withExtension(String id, Collection<String> classNames, File jarDirectory) {
+    public WireMockContainer withExtensions(Collection<String> classNames, File jarDirectory) {
         final List<File> jarsInTheDirectory;
         try (Stream<Path> walk = Files.walk(jarDirectory.toPath())) {
             jarsInTheDirectory = walk
@@ -202,19 +213,28 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
             throw new IllegalArgumentException("Cannot list JARs in the directory " + jarDirectory, e);
         }
 
-        return withExtension(id, classNames, jarsInTheDirectory);
+        return withExtensions(classNames, jarsInTheDirectory);
     }
 
     /**
      * Add extension that will be loaded from the classpath.
      * This method can be used if the extension is a part of the WireMock bundle,
-     * or a Jar is already added via {@link #withExtension(String, Collection, Collection)}}
-     * @param id Unique ID of the extension, for logging purposes
+     * or a Jar is already added via {@link #withExtensions(Collection, Collection)}}.
+     * In the internal engine, it will be handled as a single plugin.
      * @param className Class name of the extension
      * @return this instance
      */
-    public WireMockContainer withExtension(String id, String className) {
-        return withExtension(id, Collections.singleton(className), Collections.emptyList());
+    public WireMockContainer withExtension(String className) {
+        return withExtensions(Collections.singleton(className), Collections.emptyList());
+    }
+
+    private WireMockContainer withPlugin(WireMockPlugin plugin) {
+        String pluginId = plugin.getPluginId();
+        if (plugins.containsKey(pluginId)) {
+            throw new IllegalArgumentException("The plugin is already included: " + pluginId);
+        }
+        plugins.put(pluginId, plugin);
+        return this;
     }
 
     public String getBaseUrl() {
@@ -245,10 +265,10 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
         }
 
         final ArrayList<String> extensionClassNames = new ArrayList<>();
-        for (Map.Entry<String, Extension> entry : extensions.entrySet()) {
-            final Extension ext = entry.getValue();
-            extensionClassNames.addAll(ext.extensionClassNames);
-            for (File jar : ext.jars) {
+        for (Map.Entry<String, WireMockPlugin> entry : plugins.entrySet()) {
+            final WireMockPlugin ext = entry.getValue();
+            extensionClassNames.addAll(ext.getExtensionClassNames());
+            for (File jar : ext.getJars()) {
                 withCopyToContainer(MountableFile.forHostPath(jar.toPath()), EXTENSIONS_DIR + jar.getName());
             }
         }
@@ -275,13 +295,5 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
         }
     }
 
-    private static final class Extension {
-        final String id;
-        final List<File> jars = new ArrayList<>();
-        final List<String> extensionClassNames = new ArrayList<>();
 
-        public Extension(String id) {
-            this.id = id;
-        }
-    }
 }
