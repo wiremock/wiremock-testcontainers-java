@@ -156,11 +156,13 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
      * Loads mapping stub from the class resource
      * @param name Name of the mapping stub
      * @param resource Resource class. Name of the class will be appended to the resource path
-     * @param resourceJson Mapping definition file
+     * @param resourceJson Reference to the mapping definition file, starting from the {@code resource} root
+     *                     (normally package)
      * @return this instance
      */
     public WireMockContainer withMappingFromResource(String name, Class<?> resource, String resourceJson) {
-        return withMapping(name, resource.getSimpleName() + "/" + resourceJson);
+        final URL url = Resources.getResource(resource, resourceJson);
+        return withMappingFromResource(name, url);
     }
 
     /**
@@ -171,15 +173,16 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
      */
     public WireMockContainer withMappingFromResource(Class<?> resource, String resourceJson) {
         final String id = resource.getName() + "_" + resourceJson;
-        return withMapping(id, resource.getSimpleName() + "/" + resourceJson);
+        return withMappingFromResource(id, resource.getSimpleName() + "/" + resourceJson);
     }
 
     /**
-     * @deprecated use {@link #withMappingFromResource(String, Class, String)}
+     * @deprecated use {@link #withMappingFromResource(String, Class, String)}.
+     *                  Note that the new method scopes to the package, not to class
      */
     @Deprecated
     public WireMockContainer withMapping(String name, Class<?> resource, String resourceJson) {
-        return withMappingFromResource(name, resource, resourceJson);
+        return withMappingFromResource(name, resource, resource.getSimpleName() + "/" + resourceJson);
     }
 
     /**
@@ -189,14 +192,11 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
      * @return this instance
      */
     public WireMockContainer withMappingFromResource(String name, String resourceName) {
-        try {
-            URL url = Resources.getResource(resourceName);
-            String text = Resources.toString(url, StandardCharsets.UTF_8);
-            return withMapping(name, text);
-        } catch (IOException ex) {
-            throw new IllegalArgumentException(ex);
-        }
+        final URL url = Resources.getResource(resourceName);
+        return withMappingFromResource(name, url);
     }
+
+
 
     /**
      * Loads mapping stub from the resource file
