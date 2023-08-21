@@ -1,4 +1,4 @@
-package org.wiremock.integrations.testcontainers.testsupport.http;
+package org.wiremock.integrations.testcontainers.util;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,9 +9,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-public final class TestHttpClient {
+/**
+ * @deprecated this class is used only for the Java 8 which has no embedded client.
+ *             It is not a part of public API and will be removed at any moment.
+ */
+@Deprecated
+public final class SimpleHttpClient {
 
-    public HttpResponse send(HttpURLConnection connection) throws IOException {
+    public SimpleHttpResponse send(HttpURLConnection connection) throws IOException {
         InputStream inputStream = connection.getInputStream();
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -22,13 +27,11 @@ public final class TestHttpClient {
             response.append(line);
         }
         reader.close();
-        
-        
-        
-        return new HttpResponse(response.toString(), connection.getResponseCode());
+
+        return new SimpleHttpResponse(response.toString(), connection.getResponseCode());
     }
 
-    public HttpResponse get(String uri) throws IOException {
+    public SimpleHttpResponse get(String uri) throws IOException {
         URL url = new URL(uri);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
@@ -37,7 +40,7 @@ public final class TestHttpClient {
     }
 
 
-    public HttpResponse post(String uri, String body) throws IOException {
+    public SimpleHttpResponse post(String uri, String body) throws IOException {
         URL url = new URL(uri);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");

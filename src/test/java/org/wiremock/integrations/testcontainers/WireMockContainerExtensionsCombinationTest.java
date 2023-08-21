@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.wiremock.integrations.testcontainers.testsupport.http.HttpResponse;
-import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpClient;
+import org.wiremock.integrations.testcontainers.util.SimpleHttpResponse;
+import org.wiremock.integrations.testcontainers.util.SimpleHttpClient;
 
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -56,7 +56,7 @@ class WireMockContainerExtensionsCombinationTest {
         String body = "{\"name\":\"John Doe\"}";
 
         // when
-        HttpResponse response = new TestHttpClient().post(url, body);
+        SimpleHttpResponse response = new SimpleHttpClient().post(url, body);
 
         // then
         assertThat(response.getBody())
