@@ -17,8 +17,9 @@ package org.wiremock.integrations.testcontainers;
 
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.containers.wait.strategy.WaitStrategy;
 import org.testcontainers.images.builder.Transferable;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.JsonNode;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import org.testcontainers.shaded.com.google.common.io.Resources;
 import org.testcontainers.utility.ComparableVersion;
 import org.testcontainers.utility.DockerImageName;
@@ -36,6 +37,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -57,16 +59,13 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     private static final String FILES_DIR = "/home/wiremock/__files/";
 
     private static final String EXTENSIONS_DIR = "/var/wiremock/extensions/";
-    private static final WaitStrategy DEFAULT_WAITER = Wait
-            .forHttp("/__admin/mappings")
-            .withMethod("GET")
-            .forStatusCode(200);
     private static final int PORT = 8080;
     private final StringBuilder wireMockArgs;
     private final Map<String, Stub> mappingStubs = new HashMap<>();
     private final Map<String, MountableFile> mappingFiles = new HashMap<>();
     private final Map<String, Extension> extensions = new HashMap<>();
     private boolean isBannerDisabled = true;
+    private boolean ignoreEmptyMappings = false;
 
     /**
      * Create image from the specified full image name (repo, image, tag)
@@ -91,7 +90,12 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
         }
 
         wireMockArgs = new StringBuilder();
-        setWaitStrategy(DEFAULT_WAITER);
+        setWaitStrategy(Wait
+                .forHttp("/__admin/mappings")
+                .withMethod("GET")
+                .forStatusCode(200)
+                .forResponsePredicate(new WireMockMappingsResponsePredicate())
+        );
     }
 
     /**
@@ -111,7 +115,23 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
         isBannerDisabled = false;
         return this;
     }
-    
+
+    /**
+     * Instructs the container to ignore empty mappings.
+     * Otherwise the startup will be failed if there are no mappings,
+     * and the test will be forced to fail too
+     * @param ignore value to set
+     * @return this instance
+     */
+    public WireMockContainer withIgnoreEmptyMappings(boolean ignore) {
+       this.ignoreEmptyMappings = ignore;
+       return this;
+    }
+
+    public boolean isIgnoreEmptyMappings() {
+        return ignoreEmptyMappings;
+    }
+
     /**
      * Adds CLI argument to the WireMock call.
      * @param arg Argument
@@ -283,5 +303,41 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
         public Extension(String id) {
             this.id = id;
         }
+    }
+
+    /**
+     * Verifies that the Test container is started up correctly
+     */
+    private class WireMockMappingsResponsePredicate implements Predicate<String> {
+
+        @Override
+        public boolean test(String s) {
+            final int mappingsNumber;
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode obj = mapper.readTree(s);
+                if (!obj.hasNonNull("mappings")) {
+                    mappingsNumber = 0;
+                } else {
+                    JsonNode mappings = obj.get("mappings");
+                    mappingsNumber = mappings.isArray() ? mappings.size() : 0;
+                    if (mappingsNumber == 0) {
+                        // The container initialized but failed to load mappings
+                        if (!WireMockContainer.this.isIgnoreEmptyMappings()) {
+                            throw new IllegalStateException("WireMock container has initialized, but the mappings are empty. " +
+                                    "If that's desired state in the test, use WireMockContainer#withIgnoreEmptyMappings()");
+                        }
+                    }
+                }
+            } catch (IOException ex) {
+                return false;
+            }
+
+            return mappingsNumber > 0;
+        }
+    }
+
+    private static final class WireMockMappings {
+        public List<Object> mappings;
     }
 }
