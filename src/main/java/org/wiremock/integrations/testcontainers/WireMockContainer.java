@@ -15,14 +15,20 @@
  */
 package org.wiremock.integrations.testcontainers;
 
+import com.github.dockerjava.api.DockerClient;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.startupcheck.IsRunningStartupCheckStrategy;
+import org.testcontainers.containers.startupcheck.StartupCheckStrategy;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.containers.wait.strategy.WaitStrategy;
 import org.testcontainers.images.builder.Transferable;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.testcontainers.shaded.com.google.common.io.Resources;
 import org.testcontainers.utility.ComparableVersion;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
+import org.wiremock.integrations.testcontainers.util.SimpleHttpClient;
+import org.wiremock.integrations.testcontainers.util.SimpleHttpResponse;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,8 +63,9 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     private static final String FILES_DIR = "/home/wiremock/__files/";
 
     private static final String EXTENSIONS_DIR = "/var/wiremock/extensions/";
+    private static final String MAPPINGS_ENDPOINT = "/__admin/mappings";
     private static final WaitStrategy DEFAULT_WAITER = Wait
-            .forHttp("/__admin/mappings")
+            .forHttp(MAPPINGS_ENDPOINT)
             .withMethod("GET")
             .forStatusCode(200);
     private static final int PORT = 8080;
@@ -92,6 +99,7 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
 
         wireMockArgs = new StringBuilder();
         setWaitStrategy(DEFAULT_WAITER);
+        setStartupCheckStrategy(new WireMockStartupStrategy());
     }
 
     /**
@@ -282,6 +290,36 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
 
         public Extension(String id) {
             this.id = id;
+        }
+    }
+
+    private final class WireMockStartupStrategy extends IsRunningStartupCheckStrategy {
+
+        @Override
+        public StartupStatus checkStartupState(DockerClient dockerClient, String containerId) {
+            StartupStatus dockerInspectStatus = super.checkStartupState(dockerClient, containerId);
+            if (dockerInspectStatus != StartupStatus.SUCCESSFUL) {
+                return dockerInspectStatus;
+            }
+
+            // Poll WireMock mappings
+            final String url = WireMockContainer.this.getUrl(MAPPINGS_ENDPOINT);
+            final SimpleHttpResponse response;
+            try {
+                response = new SimpleHttpClient().get(url);
+            } catch (IOException ex) {
+                // WireMock is still starting up, right?
+                // TODO: Add better processing of the status once HealthCheck endpoints are introduced in WireMock
+                return StartupStatus.NOT_YET_KNOWN;
+            }
+
+            final int wiremockStatusCode = response.getStatusCode();
+            if (wiremockStatusCode != 200) {
+                // TODO: same as above
+                return StartupStatus.NOT_YET_KNOWN;
+            }
+
+           return StartupStatus.SUCCESSFUL;
         }
     }
 }

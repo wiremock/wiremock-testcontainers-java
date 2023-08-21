@@ -22,8 +22,8 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.wiremock.integrations.testcontainers.testsupport.http.HttpResponse;
-import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpClient;
+import org.wiremock.integrations.testcontainers.util.SimpleHttpResponse;
+import org.wiremock.integrations.testcontainers.util.SimpleHttpClient;
 import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpServer;
 
 import java.nio.file.Paths;
@@ -75,7 +75,7 @@ class WireMockContainerExtensionsWebhookTest {
         String applicationCallbackUrl = String.format("http://%s:%d%s", GenericContainer.INTERNAL_HOST_HOSTNAME, applicationServer.getPort(), APPLICATION_PATH);
 
         // when
-        HttpResponse response = new TestHttpClient().post(
+        SimpleHttpResponse response = new SimpleHttpClient().post(
                 wiremockUrl,
                 "{\"callbackMethod\": \"PUT\", \"callbackUrl\": \"" + applicationCallbackUrl + "\"}"
         );

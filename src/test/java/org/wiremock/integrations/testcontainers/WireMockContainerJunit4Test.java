@@ -17,8 +17,8 @@ package org.wiremock.integrations.testcontainers;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.wiremock.integrations.testcontainers.testsupport.http.HttpResponse;
-import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpClient;
+import org.wiremock.integrations.testcontainers.util.SimpleHttpResponse;
+import org.wiremock.integrations.testcontainers.util.SimpleHttpClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,7 +36,7 @@ public class WireMockContainerJunit4Test {
         String url = wiremockServer.getUrl("/hello");
 
         // when
-        HttpResponse response = new TestHttpClient().get(url);
+        SimpleHttpResponse response = new SimpleHttpClient().get(url);
 
         // then
         assertThat(response.getBody())
@@ -50,7 +50,7 @@ public class WireMockContainerJunit4Test {
         String url = wiremockServer.getUrl("hello");
 
         // when
-        HttpResponse response = new TestHttpClient().get(url);
+        SimpleHttpResponse response = new SimpleHttpClient().get(url);
 
         // then
         assertThat(response.getBody())
@@ -64,7 +64,7 @@ public class WireMockContainerJunit4Test {
         String url = wiremockServer.getUrl("/hello-from-file");
 
         // when
-        HttpResponse response = new TestHttpClient().get(url);
+        SimpleHttpResponse response = new SimpleHttpClient().get(url);
 
         // then
         assertThat(response.getBody())

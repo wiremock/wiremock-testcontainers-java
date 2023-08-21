@@ -20,8 +20,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.wiremock.integrations.testcontainers.testsupport.http.HttpResponse;
-import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpClient;
+import org.wiremock.integrations.testcontainers.util.SimpleHttpResponse;
+import org.wiremock.integrations.testcontainers.util.SimpleHttpClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,7 +46,7 @@ class WireMockContainerTest {
         String url = wiremockServer.getUrl(path);
 
         // when
-        HttpResponse response = new TestHttpClient().get(url);
+        SimpleHttpResponse response = new SimpleHttpClient().get(url);
 
         // then
         assertThat(response.getBody())
@@ -60,7 +60,7 @@ class WireMockContainerTest {
         String url = wiremockServer.getUrl("/hello-from-file");
 
         // when
-        HttpResponse response = new TestHttpClient().get(url);
+        SimpleHttpResponse response = new SimpleHttpClient().get(url);
 
         // then
         assertThat(response.getBody())
