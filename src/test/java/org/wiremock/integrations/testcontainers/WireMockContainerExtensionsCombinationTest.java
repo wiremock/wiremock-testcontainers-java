@@ -42,10 +42,10 @@ class WireMockContainerExtensionsCombinationTest {
     WireMockContainer wiremockServer = new WireMockContainer(WireMockContainer.WIREMOCK_2_LATEST)
             .withLogConsumer(new Slf4jLogConsumer(LOGGER))
             .withMapping("json-body-transformer", WireMockContainerExtensionsCombinationTest.class, "json-body-transformer.json")
-            .withExtension("Webhook",
+            .withExtensions("Webhook",
                     Collections.singleton("org.wiremock.webhooks.Webhooks"),
                     Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-webhooks-extension-2.35.0.jar").toFile()))
-            .withExtension("JSON Body Transformer",
+            .withExtensions("JSON Body Transformer",
                     Collections.singleton("com.ninecookies.wiremock.extensions.JsonBodyTransformer"),
                     Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-extensions-0.4.1-jar-with-dependencies.jar").toFile()));
 
