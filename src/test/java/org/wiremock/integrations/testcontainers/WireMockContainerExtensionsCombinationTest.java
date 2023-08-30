@@ -39,12 +39,12 @@ class WireMockContainerExtensionsCombinationTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(WireMockContainerExtensionsCombinationTest.class);
 
     @Container
-    WireMockContainer wiremockServer = new WireMockContainer(WireMockContainer.WIREMOCK_2_LATEST)
+    WireMockContainer wiremockServer = new WireMockContainer(TestConfig.WIREMOCK_DEFAULT_IMAGE)
             .withLogConsumer(new Slf4jLogConsumer(LOGGER))
             .withMapping("json-body-transformer", WireMockContainerExtensionsCombinationTest.class, "json-body-transformer.json")
             .withExtensions("Webhook",
                     Collections.singleton("org.wiremock.webhooks.Webhooks"),
-                    Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-webhooks-extension-2.35.0.jar").toFile()))
+                    Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-webhooks-extension-3.0.0.jar").toFile()))
             .withExtensions("JSON Body Transformer",
                     Collections.singleton("com.ninecookies.wiremock.extensions.JsonBodyTransformer"),
                     Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-extensions-0.4.1-jar-with-dependencies.jar").toFile()));

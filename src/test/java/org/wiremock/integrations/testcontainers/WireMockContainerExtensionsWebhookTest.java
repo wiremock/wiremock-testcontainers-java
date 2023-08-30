@@ -56,13 +56,13 @@ class WireMockContainerExtensionsWebhookTest {
 
     TestHttpServer applicationServer = TestHttpServer.newInstance();
     @Container
-    WireMockContainer wiremockServer = new WireMockContainer(WireMockContainer.WIREMOCK_2_LATEST)
+    WireMockContainer wiremockServer = new WireMockContainer(TestConfig.WIREMOCK_DEFAULT_IMAGE)
             .withLogConsumer(new Slf4jLogConsumer(LOGGER))
             .withCliArg("--global-response-templating")
             .withMapping("webhook-callback-template", WireMockContainerExtensionsWebhookTest.class, "webhook-callback-template.json")
             .withExtensions("Webhook",
                     Collections.singleton("org.wiremock.webhooks.Webhooks"),
-                    Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-webhooks-extension-2.35.0.jar").toFile()))
+                    Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-webhooks-extension-3.0.0.jar").toFile()))
             .withAccessToHost(true); // Force the host access mechanism
 
 
