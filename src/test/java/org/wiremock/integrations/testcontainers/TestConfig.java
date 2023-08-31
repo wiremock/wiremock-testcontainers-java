@@ -5,7 +5,7 @@ import org.testcontainers.utility.DockerImageName;
 public class TestConfig {
 
     private static final String DEFAULT_TEST_TAG =
-            System.getProperty("wiremock.testcontainer.defaultTag", "3.0.0-1");
+            System.getProperty("wiremock.testcontainer.defaultTag", "3.0.1-1");
     private static final String WIREMOCK_2_TEST_TAG =
             System.getProperty("wiremock.testcontainer.wiremock2Tag", "2.35.0-1");
 
