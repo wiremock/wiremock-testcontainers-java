@@ -62,7 +62,7 @@ class WireMockContainerExtensionsWebhookTest {
             .withMapping("webhook-callback-template", WireMockContainerExtensionsWebhookTest.class, "webhook-callback-template.json")
             .withExtensions("Webhook",
                     Collections.singleton("org.wiremock.webhooks.Webhooks"),
-                    Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-webhooks-extension-3.0.0.jar").toFile()))
+                    Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-webhooks-extension-3.0.1.jar").toFile()))
             .withAccessToHost(true); // Force the host access mechanism
 
 
