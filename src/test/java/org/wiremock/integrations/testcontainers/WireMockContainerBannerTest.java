@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class WireMockContainerBannerTest {
 
-    WireMockContainer wireMockContainer = new WireMockContainer(WireMockContainer.WIREMOCK_2_LATEST);
+    WireMockContainer wireMockContainer = new WireMockContainer(TestConfig.WIREMOCK_DEFAULT_IMAGE);
 
     @Test
     void bannerIsByDefaultDisabled() {
