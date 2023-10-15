@@ -50,6 +50,8 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     private static final String WIREMOCK_2_LATEST_TAG = "2.35.0";
     /*package*/ static final String WIREMOCK_2_MINIMUM_SUPPORTED_VERSION = "2.0.0";
 
+    static final String WIREMOCK_HEALTH_CHECK_SUPPORT_MINIMUM_VERSION = "3.0.0-1";
+
     public static final DockerImageName WIREMOCK_2_LATEST =
             DockerImageName.parse(OFFICIAL_IMAGE_NAME).withTag(WIREMOCK_2_LATEST_TAG);
 
@@ -59,6 +61,11 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     private static final String EXTENSIONS_DIR = "/var/wiremock/extensions/";
     private static final WaitStrategy DEFAULT_WAITER = Wait
             .forHttp("/__admin/mappings")
+            .withMethod("GET")
+            .forStatusCode(200);
+
+    private static final WaitStrategy HEALTH_CHECK_ENDPOINT_WAITER = Wait
+            .forHttp("/__admin/health")
             .withMethod("GET")
             .forStatusCode(200);
     private static final int PORT = 8080;
@@ -91,7 +98,13 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
         }
 
         wireMockArgs = new StringBuilder();
-        setWaitStrategy(DEFAULT_WAITER);
+
+        if (version.isGreaterThanOrEqualTo(WIREMOCK_HEALTH_CHECK_SUPPORT_MINIMUM_VERSION)) {
+            setWaitStrategy(HEALTH_CHECK_ENDPOINT_WAITER);
+        }
+        else {
+            setWaitStrategy(DEFAULT_WAITER);
+        }
     }
 
     /**
