@@ -1,4 +1,4 @@
-name: Release to GitHub Packages
+name: Release
 
 on:
   workflow_dispatch:
@@ -26,6 +26,14 @@ jobs:
             git config user.email "actions@github.com"
             git config user.name "GitHub Actions"
 
+      - id: install-secret-key
+        name: Install gpg secret key
+        run: |
+          # Install gpg secret key
+          cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
+          # Verify gpg secret key
+          gpg --list-secret-keys --keyid-format LONG
+
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
@@ -43,7 +51,7 @@ jobs:
           git diff-index --quiet HEAD || git commit -m "Releasing version ${{ github.event.inputs.version }}" pom.xml
         
       - name: Publish to GitHub Packages
-        run: mvn -ntp --batch-mode clean deploy -Prelease
+        run: mvn -ntp --batch-mode -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} clean deploy -Prelease
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
@@ -56,7 +64,7 @@ jobs:
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
       - name: Publish to the Maven Central
-        run: mvn --batch-mode deploy -Prelease,mavencentral-release
+        run: mvn --batch-mode -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} clean deploy -Prelease,mavencentral-release
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
