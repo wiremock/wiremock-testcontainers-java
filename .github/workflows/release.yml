@@ -51,7 +51,7 @@ jobs:
           git diff-index --quiet HEAD || git commit -m "Releasing version ${{ github.event.inputs.version }}" pom.xml
         
       - name: Publish to GitHub Packages
-        run: mvn -ntp --batch-mode -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} clean deploy -Prelease
+        run: mvn -ntp --batch-mode -Dgpg.passphrase="${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}" clean deploy -Prelease
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
@@ -64,7 +64,7 @@ jobs:
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
       - name: Publish to the Maven Central
-        run: mvn --batch-mode -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} clean deploy -Prelease,mavencentral-release
+        run: mvn --batch-mode -Dgpg.passphrase="${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}" clean deploy -Prelease,mavencentral-release
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
