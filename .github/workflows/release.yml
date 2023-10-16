@@ -21,6 +21,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Configure Git user
+        run: |
+            git config user.email "actions@github.com"
+            git config user.name "GitHub Actions"
+
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
@@ -29,20 +34,29 @@ jobs:
           distribution: 'temurin'
           cache: maven
  
-      - name: Configure Git user
-        run: |
-          git config user.email "actions@github.com"
-          git config user.name "GitHub Actions"
- 
       - name: Set Release Version
         id: vars
         shell: bash
         run: |
           echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
-          mvn -ntp -B versions:set -DnewVersion=${{ github.event.inputs.version }}-SNAPSHOT
+          mvn -ntp --batch-mode versions:set -DnewVersion=${{ github.event.inputs.version }}
           git diff-index --quiet HEAD || git commit -m "Releasing version ${{ github.event.inputs.version }}" pom.xml
         
       - name: Publish to GitHub Packages
-        run: mvn -ntp -B release:prepare release:perform
+        run: mvn -ntp --batch-mode clean deploy -Prelease
         env:
           GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Set up Java for publishing to Maven Central
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+      - name: Publish to the Maven Central
+        run: mvn --batch-mode deploy -Prelease,mavencentral-release
+        env:
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
