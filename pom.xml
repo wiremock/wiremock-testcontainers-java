@@ -4,8 +4,10 @@
 
   <groupId>org.wiremock.integrations.testcontainers</groupId>
   <artifactId>wiremock-testcontainers-module</artifactId>
-  <description>Testcontainers Java module for WireMock</description>
-  <version>1.0-alpha-9-SNAPSHOT</version>
+  <name>WireMock module for Testcontainers Java</name>
+  <description>This Testcontainers module allows provisioning the WireMock server as a standalone container within your unit tests, based on WireMock Docker</description>
+  <url>https://github.com/wiremock/wiremock-testcontainers-java</url>
+  <version>1.0-alpha-12-SNAPSHOT</version>
 
   <licenses>
     <license>
@@ -14,6 +16,17 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
+
+  <developers>
+    <developer>
+      <id>oleg-nenashev</id> <!-- OSSRH -->
+      <name>Oleg Nenashev</name>
+      <url>https://github.com/oleg-nenashev/</url>
+      <timezone>CEST</timezone>
+      <organization>WireMock Inc.</organization>
+      <organizationUrl>https://www.wiremock.io/</organizationUrl>
+    </developer>
+  </developers>
 
   <properties>
     <java.version>1.8</java.version>
