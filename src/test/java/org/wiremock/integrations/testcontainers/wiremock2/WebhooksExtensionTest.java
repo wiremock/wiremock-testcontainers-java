@@ -15,6 +15,13 @@
  */
 package org.wiremock.integrations.testcontainers.wiremock2;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.testcontainers.Testcontainers.exposeHostPorts;
+import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
+
+import java.nio.file.Paths;
+import java.time.Duration;
+import java.util.Collections;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,14 +34,6 @@ import org.wiremock.integrations.testcontainers.WireMockContainer;
 import org.wiremock.integrations.testcontainers.testsupport.http.HttpResponse;
 import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpClient;
 import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpServer;
-
-import java.nio.file.Paths;
-import java.time.Duration;
-import java.util.Collections;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.testcontainers.Testcontainers.exposeHostPorts;
-import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
 /**
  * Tests the WireMock Webhook extension and TestContainers Networking
@@ -59,14 +58,13 @@ class WebhooksExtensionTest {
     TestHttpServer applicationServer = TestHttpServer.newInstance();
     @Container
     WireMockContainer wiremockServer = new WireMockContainer(TestConfig.WIREMOCK_2_IMAGE)
-            .withLogConsumer(new Slf4jLogConsumer(LOGGER))
-            .withCliArg("--global-response-templating")
-            .withMapping("webhook-callback-template", WebhooksExtensionTest.class, "webhook-callback-template.json")
-            .withExtensions("Webhooks",
-                    Collections.singleton("org.wiremock.webhooks.Webhooks"),
-                    Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-webhooks-extension-2.35.1.jar").toFile()))
-            .withAccessToHost(true); // Force the host access mechanism
-
+        .withLogConsumer(new Slf4jLogConsumer(LOGGER))
+        .withCliArg("--global-response-templating")
+        .withMapping("webhook-callback-template", WebhooksExtensionTest.class, "webhook-callback-template.json")
+        .withExtensions("Webhooks",
+                        Collections.singleton("org.wiremock.webhooks.Webhooks"),
+                        Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-webhooks-extension-2.35.0.jar").toFile()))
+        .withAccessToHost(true); // Force the host access mechanism
 
     @Test
     void callbackUsingJsonStub() throws Exception {
