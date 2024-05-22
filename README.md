@@ -24,7 +24,7 @@ A common example is using Wiremock 3.x with Java 1.8.
 The module is compatible with the following WireMock versions:
 
 - WireMock (aka WireMock Java) `2.0.0` and above
-- WireMock (aka WireMock Java) `3.0.0` beta versions.
+- WireMock (aka WireMock Java) `3.x` versions.
   Note that the official image for WireMock 3 is yet to be released and verified ([issue #59](https://github.com/wiremock/wiremock-testcontainers-java/issues/59))
 
 Other WireMock implementations may work but have not been tested yet.

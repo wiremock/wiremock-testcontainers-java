@@ -60,7 +60,6 @@ class WireMockContainerWebhooksTest {
             .withLogConsumer(new Slf4jLogConsumer(LOGGER))
             .withCliArg("--global-response-templating")
             .withMapping("webhook-callback-template", WireMockContainerWebhooksTest.class, "webhook-callback-template.json")
-            .withExtension("org.wiremock.webhooks.Webhooks")
             .withAccessToHost(true); // Force the host access mechanism
 
     @Test
