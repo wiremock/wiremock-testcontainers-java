@@ -36,7 +36,7 @@
     <testcontainers.version>1.19.8</testcontainers.version>
     <junit.version>5.10.2</junit.version>
     <assertj.version>3.26.3</assertj.version>
-    <awaitility.version>4.2.0</awaitility.version>
+    <awaitility.version>4.2.2</awaitility.version>
     <project.scm.id>github</project.scm.id>
   </properties>
 
