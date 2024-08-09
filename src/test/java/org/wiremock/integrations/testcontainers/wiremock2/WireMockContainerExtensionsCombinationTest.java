@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wiremock.integrations.testcontainers;
+package org.wiremock.integrations.testcontainers.wiremock2;
 
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -21,29 +21,32 @@ import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.wiremock.integrations.testcontainers.TestConfig;
+import org.wiremock.integrations.testcontainers.WireMockContainer;
 import org.wiremock.integrations.testcontainers.testsupport.http.HttpResponse;
 import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpClient;
 
 import java.nio.file.Paths;
-import java.time.Duration;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests the WireMock extension loading.
- * It uses the external Jar supplied by the Maven Dependency Plugin.
+ * It uses multiple external Jars supplied by the Maven Dependency Plugin.
  */
 @Testcontainers
-class WireMockContainerExtensionTest {
+class WireMockContainerExtensionsCombinationTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WireMockContainerExtensionTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WireMockContainerExtensionsCombinationTest.class);
 
     @Container
-    WireMockContainer wiremockServer = new WireMockContainer(TestConfig.WIREMOCK_DEFAULT_IMAGE)
+    WireMockContainer wiremockServer = new WireMockContainer(TestConfig.WIREMOCK_2_IMAGE)
             .withLogConsumer(new Slf4jLogConsumer(LOGGER))
-            .withStartupTimeout(Duration.ofSeconds(60))
-            .withMapping("json-body-transformer", WireMockContainerExtensionTest.class, "json-body-transformer.json")
+            .withMapping("json-body-transformer", WireMockContainerExtensionsCombinationTest.class, "json-body-transformer.json")
+            .withExtensions("Webhook",
+                    Collections.singleton("org.wiremock.webhooks.Webhooks"),
+                    Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-webhooks-extension-2.35.0.jar").toFile()))
             .withExtensions("JSON Body Transformer",
                     Collections.singleton("com.ninecookies.wiremock.extensions.JsonBodyTransformer"),
                     Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-extensions-0.4.1-jar-with-dependencies.jar").toFile()));
@@ -62,5 +65,4 @@ class WireMockContainerExtensionTest {
                 .as("Wrong response body")
                 .contains("Hello, John Doe!");
     }
-
 }

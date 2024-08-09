@@ -47,24 +47,20 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
  * @see <a href="https://www.testcontainers.org/features/networking/">Testcontainers Networking</a>
  */
 @Testcontainers
-class WireMockContainerExtensionsWebhookTest {
+class WireMockContainerWebhooksTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WireMockContainerExtensionsWebhookTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WireMockContainerWebhooksTest.class);
     private static final String WIREMOCK_PATH = "/wiremock/callback-trigger";
     private static final String APPLICATION_PATH = "/application/callback-receiver";
 
 
     TestHttpServer applicationServer = TestHttpServer.newInstance();
     @Container
-    WireMockContainer wiremockServer = new WireMockContainer(WireMockContainer.WIREMOCK_2_LATEST)
+    WireMockContainer wiremockServer = new WireMockContainer(TestConfig.WIREMOCK_DEFAULT_IMAGE)
             .withLogConsumer(new Slf4jLogConsumer(LOGGER))
             .withCliArg("--global-response-templating")
-            .withMapping("webhook-callback-template", WireMockContainerExtensionsWebhookTest.class, "webhook-callback-template.json")
-            .withExtensions("Webhook",
-                    Collections.singleton("org.wiremock.webhooks.Webhooks"),
-                    Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-webhooks-extension-2.35.0.jar").toFile()))
+            .withMapping("webhook-callback-template", WireMockContainerWebhooksTest.class, "webhook-callback-template.json")
             .withAccessToHost(true); // Force the host access mechanism
-
 
     @Test
     void callbackUsingJsonStub() throws Exception {

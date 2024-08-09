@@ -11,7 +11,7 @@ public class WireMockContainerUnitTest {
 
     @Test
     public void shouldInitWithDefault() {
-        WireMockContainer container = new WireMockContainer(WireMockContainer.WIREMOCK_2_LATEST);
+        WireMockContainer container = new WireMockContainer(TestConfig.WIREMOCK_DEFAULT_IMAGE);
     }
 
     @Test

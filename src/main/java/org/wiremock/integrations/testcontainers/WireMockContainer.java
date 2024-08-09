@@ -47,11 +47,15 @@ import java.util.stream.Stream;
 public class WireMockContainer extends GenericContainer<WireMockContainer> {
 
     public static final String OFFICIAL_IMAGE_NAME = "wiremock/wiremock";
-    private static final String WIREMOCK_2_LATEST_TAG = "2.35.0";
+    private static final String WIREMOCK_2_LATEST_TAG = "2.35.0-1";
+    private static final String WIREMOCK_3_LATEST_TAG = "3.5.4";
     /*package*/ static final String WIREMOCK_2_MINIMUM_SUPPORTED_VERSION = "2.0.0";
-
     static final String WIREMOCK_HEALTH_CHECK_SUPPORT_MINIMUM_VERSION = "3.0.0-1";
 
+    /**
+     * @deprecated Not really guaranteed to be latest. Will be reworked
+     */
+    @Deprecated
     public static final DockerImageName WIREMOCK_2_LATEST =
             DockerImageName.parse(OFFICIAL_IMAGE_NAME).withTag(WIREMOCK_2_LATEST_TAG);
 
