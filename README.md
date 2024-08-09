@@ -9,9 +9,9 @@
 > and there might be incompatible changes before the 1.0 release.
 > Contributions are welcome!
 
-This module allows provisioning the WireMock server 
+This module allows provisioning the WireMock server
 as a standalone container
-within your unit test, based on [WireMock Docker](https://github.com/wiremock/wiremock-docker).
+within your unit tests, based on [WireMock Docker](https://github.com/wiremock/wiremock-docker).
 
 While you can run [WireMock Java](https://github.com/wiremock/wiremock)
 with the same result for the most of the use-cases,
@@ -34,13 +34,39 @@ Please feel free to contribute the integration tests and compatibility layers!
 
 ### Importing the dependency
 
-At the moment the module is published to GitHub Packages only,
-see [Issue #56](https://github.com/wiremock/wiremock-testcontainers-java/issues/56)
-for publishing to Maven Central.
-For the moment, you can use the authenticated GitHub Packages server or
-[JitPack](https://jitpack.io/) to add the dependency in your projects.
+The module is published to Maven Central and GitHub Packages.
+You can also use [JitPack](https://jitpack.io/) to add the dependency in your projects.
 
-#### Maven / JitPack
+#### Maven
+
+```xml
+<dependency>
+  <groupId>org.wiremock.integrations.testcontainers</groupId>
+  <artifactId>wiremock-testcontainers-module</artifactId>
+  <version>${see the releases}</version>
+  <scope>test</scope>
+</dependency>
+```
+
+#### Gradle
+
+```gradle
+dependencies {
+  testImplementation 'org.wiremock.integrations.testcontainers:wiremock-testcontainers-module:${wiremock-testcontainers.version}'
+}
+```
+
+#### GitHub Packages
+
+GitHub Packages uses the official Maven coordinates (same as Maven Central above),
+but you will need to configure the server and authentication.
+
+#### JitPack
+
+<details>
+<summary>
+JitPack / Maven
+</summary>
 
 ```xml
   <dependencies>
@@ -61,14 +87,14 @@ For the moment, you can use the authenticated GitHub Packages server or
   </repositories>
 ```
 
+</details>
+
 <details>
 <summary>
-Gradle / JitPack
+JitPack / Gradle
 </summary>
 
-#### Gradle / JitPack
-
-```groovy
+```gradle
   allprojects {
 		repositories {
 			maven { url 'https://jitpack.io' }
@@ -79,26 +105,6 @@ Gradle / JitPack
 		testImplementation 'com.github.wiremock:wiremock-testcontainers-java:${wiremock-testcontainers.version}'
 	}
 
-```
-</details>
-
-<details>
-<summary>
-Maven / GitHub Packages
-</summary>
-
-#### Maven / GitHub Packages
-
-GitHub Packages uses the official Maven coordinates,
-but you will need to configure the server and authentication.
-
-```xml
-    <dependency>
-      <groupId>org.wiremock.integrations.testcontainers</groupId>
-      <artifactId>wiremock-testcontainers-module</artifactId>
-      <version>${see the releases}</version>
-      <scope>test</scope>
-    </dependency>
 ```
 
 </details>
