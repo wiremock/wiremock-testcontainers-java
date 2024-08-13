@@ -237,7 +237,7 @@
       <id>release</id>
       <properties>
           <version.maven-release-plugin>3.0.1</version.maven-release-plugin>
-          <version.maven-gpg-plugin>3.2.4</version.maven-gpg-plugin>
+          <version.maven-gpg-plugin>3.2.5</version.maven-gpg-plugin>
       </properties>
       <build>
           <pluginManagement>
