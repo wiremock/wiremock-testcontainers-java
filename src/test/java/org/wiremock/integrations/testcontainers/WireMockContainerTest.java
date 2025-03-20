@@ -28,12 +28,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Testcontainers(parallel = true)
 class WireMockContainerTest {
 
+    private static final int WIREMOCK_DEFAULT_PORT = 8080;
+    private static final int ADDITIONAL_MAPPED_PORT = 8443;
+
     @Container
     WireMockContainer wiremockServer = new WireMockContainer(TestConfig.WIREMOCK_DEFAULT_IMAGE)
             .withMapping("hello", WireMockContainerTest.class, "hello-world.json")
             .withMapping("hello-resource", WireMockContainerTest.class, "hello-world-resource.json")
             .withFileFromResource("hello-world-resource-response.xml", WireMockContainerTest.class,
-                    "hello-world-resource-response.xml");
+                    "hello-world-resource-response.xml")
+            .withExposedPorts(ADDITIONAL_MAPPED_PORT);
 
 
     @ParameterizedTest
@@ -66,5 +70,16 @@ class WireMockContainerTest {
         assertThat(response.getBody())
                 .as("Wrong response body")
                 .contains("Hello, world!");
+    }
+
+    @Test
+    void customPortsAreExposed() {
+        //given
+
+        //when
+
+        //then
+        assertThat(wiremockServer.getExposedPorts())
+                .contains(WIREMOCK_DEFAULT_PORT, ADDITIONAL_MAPPED_PORT);
     }
 }
