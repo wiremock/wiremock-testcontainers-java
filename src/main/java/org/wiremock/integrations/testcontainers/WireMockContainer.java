@@ -63,16 +63,18 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     private static final String FILES_DIR = "/home/wiremock/__files/";
 
     private static final String EXTENSIONS_DIR = "/var/wiremock/extensions/";
+    private static final int PORT = 8080;
     private static final WaitStrategy DEFAULT_WAITER = Wait
             .forHttp("/__admin/mappings")
             .withMethod("GET")
-            .forStatusCode(200);
+            .forStatusCode(200)
+            .forPort(PORT);
 
     private static final WaitStrategy HEALTH_CHECK_ENDPOINT_WAITER = Wait
             .forHttp("/__admin/health")
             .withMethod("GET")
-            .forStatusCode(200);
-    private static final int PORT = 8080;
+            .forStatusCode(200)
+            .forPort(PORT);
     private final StringBuilder wireMockArgs;
     private final Map<String, Stub> mappingStubs = new HashMap<>();
     private final Map<String, MountableFile> mappingFiles = new HashMap<>();
@@ -371,7 +373,7 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     @Override
     protected void configure() {
         super.configure();
-        withExposedPorts(PORT);
+        addExposedPorts(PORT);
         for (Stub stub : mappingStubs.values()) {
             withCopyToContainer(Transferable.of(stub.json), MAPPINGS_DIR + stub.name + ".json");
         }
