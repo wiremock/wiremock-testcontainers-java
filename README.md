@@ -334,9 +334,4 @@ public class WireMockContainerExtensionJunit4Test {
 
 ## Contributing
 
-This repository is implemented as a standard Maven project.
-All contributions are welcome!
-Just submit a pull request.
-
-See [this page](https://wiremock.org/docs/participate/) for a generic WireMock Contributor Guide
-    
+See the [Contributor Guide](./CONTRIBUTING.md).
