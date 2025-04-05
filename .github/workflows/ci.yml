@@ -31,5 +31,7 @@ jobs:
         java-version: ${{ matrix.jdk }}
         distribution: 'temurin'
         cache: maven
+    - name: Build with Gradle
+      run: ./gradlew build
     - name: Build with Maven
       run: mvn -B package --file pom.xml
