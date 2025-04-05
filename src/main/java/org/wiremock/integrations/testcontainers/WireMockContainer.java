@@ -30,12 +30,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -59,8 +55,12 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     public static final DockerImageName WIREMOCK_2_LATEST =
             DockerImageName.parse(OFFICIAL_IMAGE_NAME).withTag(WIREMOCK_2_LATEST_TAG);
 
-    private static final String MAPPINGS_DIR = "/home/wiremock/mappings/";
-    private static final String FILES_DIR = "/home/wiremock/__files/";
+
+    private static final String MAPPINGS_DIR = "mappings/";
+    private static final String FILES_DIR = "__files/";
+    private static final String CONTAINER_WORKING_DIR = "/home/wiremock/";
+    private static final String CONTAINER_MAPPINGS_DIR = CONTAINER_WORKING_DIR + MAPPINGS_DIR;
+    private static final String CONTAINER_FILES_DIR = CONTAINER_WORKING_DIR + FILES_DIR;
 
     private static final String EXTENSIONS_DIR = "/var/wiremock/extensions/";
     private static final int PORT = 8080;
@@ -80,6 +80,8 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     private final Map<String, MountableFile> mappingFiles = new HashMap<>();
     private final Map<String, WireMockPlugin> plugins = new HashMap<>();
     private boolean isBannerDisabled = true;
+
+    private static final Path DEFAULT_ROOT_DIRECTORY = Paths.get("src/test/resources");
 
     /**
      * Create image from the specified full image name (repo, image, tag)
@@ -107,14 +109,14 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
 
         if (version.isGreaterThanOrEqualTo(WIREMOCK_HEALTH_CHECK_SUPPORT_MINIMUM_VERSION)) {
             setWaitStrategy(HEALTH_CHECK_ENDPOINT_WAITER);
-        }
-        else {
+        } else {
             setWaitStrategy(DEFAULT_WAITER);
         }
     }
 
     /**
      * Disables the banner when starting the WireMock container.
+     *
      * @return this instance
      */
     public WireMockContainer withoutBanner() {
@@ -124,15 +126,17 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
 
     /**
      * Enable the banner when starting the WireMock container.
+     *
      * @return this instance
      */
     public WireMockContainer withBanner() {
         isBannerDisabled = false;
         return this;
     }
-    
+
     /**
      * Adds CLI argument to the WireMock call.
+     *
      * @param arg Argument
      * @return this instance
      */
@@ -144,6 +148,7 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
 
     /**
      * Add mapping JSON file from its value
+     *
      * @param json JSON sting
      * @return This instance
      */
@@ -153,6 +158,7 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
 
     /**
      * Adds a JSON mapping stub to WireMock configuration
+     *
      * @param name Name of the mapping stub
      * @param json Configuration JSON
      * @return this instance
@@ -173,8 +179,9 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
 
     /**
      * Loads mapping stub from the class resource
-     * @param name Name of the mapping stub
-     * @param resource Resource class. Name of the class will be appended to the resource path
+     *
+     * @param name         Name of the mapping stub
+     * @param resource     Resource class. Name of the class will be appended to the resource path
      * @param resourceJson Reference to the mapping definition file, starting from the {@code resource} root
      *                     (normally package)
      * @return this instance
@@ -186,7 +193,8 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
 
     /**
      * Loads mapping stub from the class resource
-     * @param resource Resource class. Name of the class will be appended to the resource path
+     *
+     * @param resource     Resource class. Name of the class will be appended to the resource path
      * @param resourceJson Mapping definition file
      * @return this instance
      */
@@ -197,7 +205,7 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
 
     /**
      * @deprecated use {@link #withMappingFromResource(String, Class, String)}.
-     *                  Note that the new method scopes to the package, not to class
+     * Note that the new method scopes to the package, not to class
      */
     @Deprecated
     public WireMockContainer withMapping(String name, Class<?> resource, String resourceJson) {
@@ -206,7 +214,8 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
 
     /**
      * Loads mapping stub from the resource file
-     * @param name Name of the mapping stub
+     *
+     * @param name         Name of the mapping stub
      * @param resourceName Resource name and path
      * @return this instance
      */
@@ -216,9 +225,9 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     }
 
 
-
     /**
      * Loads mapping stub from the resource file
+     *
      * @param resourceName Resource name and path
      * @return this instance
      */
@@ -229,8 +238,9 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
 
     /**
      * Loads mapping stub from the resource file
+     *
      * @param name Name of the mapping stub
-     * @param url Resource file URL
+     * @param url  Resource file URL
      * @return this instance
      */
     public WireMockContainer withMappingFromResource(String name, URL url) {
@@ -244,6 +254,7 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
 
     /**
      * Adds file
+     *
      * @param name ID to be used
      * @param file File to add
      * @return This instance
@@ -256,6 +267,7 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
 
     /**
      * Adds file
+     *
      * @param file File to add
      * @return This instance
      */
@@ -289,8 +301,9 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     /**
      * Add extension that will be loaded from the specified JAR files.
      * In the internal engine, it will be handled as a single plugin.
+     *
      * @param classNames Class names of the extension to be included
-     * @param jars JARs to be included into the container
+     * @param jars       JARs to be included into the container
      * @return this instance
      */
     public WireMockContainer withExtensions(Collection<String> classNames, Collection<File> jars) {
@@ -300,9 +313,10 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     /**
      * Add extension that will be loaded from the specified JAR files.
      * In the internal engine, it will be handled as a single plugin.
-     * @param id Identifier top use
+     *
+     * @param id         Identifier top use
      * @param classNames Class names of the extension to be included
-     * @param jars JARs to be included into the container
+     * @param jars       JARs to be included into the container
      * @return this instance
      */
     public WireMockContainer withExtensions(String id, Collection<String> classNames, Collection<File> jars) {
@@ -315,7 +329,8 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     /**
      * Add extension that will be loaded from the specified directory with JAR files.
      * In the internal engine, it will be handled as a single plugin.
-     * @param classNames Class names of the extension to be included
+     *
+     * @param classNames   Class names of the extension to be included
      * @param jarDirectory Directory that stores all JARs
      * @return this instance
      */
@@ -339,6 +354,7 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
      * This method can be used if the extension is a part of the WireMock bundle,
      * or a Jar is already added via {@link #withExtensions(Collection, Collection)}}.
      * In the internal engine, it will be handled as a single plugin.
+     *
      * @param className Class name of the extension
      * @return this instance
      */
@@ -374,12 +390,15 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     protected void configure() {
         super.configure();
         addExposedPorts(PORT);
+
+        loadAllFilesFromDefaultRootDirectory();
+
         for (Stub stub : mappingStubs.values()) {
-            withCopyToContainer(Transferable.of(stub.json), MAPPINGS_DIR + stub.name + ".json");
+            withCopyToContainer(Transferable.of(stub.json), CONTAINER_MAPPINGS_DIR + stub.name + ".json");
         }
 
         for (Map.Entry<String, MountableFile> mount : mappingFiles.entrySet()) {
-            withCopyToContainer(mount.getValue(), FILES_DIR + mount.getKey());
+            withCopyToContainer(mount.getValue(), CONTAINER_FILES_DIR + mount.getKey());
         }
 
         final ArrayList<String> extensionClassNames = new ArrayList<>();
@@ -403,6 +422,15 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
         withCommand(wireMockArgs.toString());
     }
 
+    private void loadAllFilesFromDefaultRootDirectory() {
+        Path defaultRootDirMappingsPath = DEFAULT_ROOT_DIRECTORY.resolve(MAPPINGS_DIR);
+        getAllFiles(defaultRootDirMappingsPath).forEach(path -> withMappingFromJSON(readAllContent(path)));
+
+        Path defaultRootDirectoryFiles = DEFAULT_ROOT_DIRECTORY.resolve(FILES_DIR);
+        getAllFiles(defaultRootDirectoryFiles).forEach(path ->
+                withFile(defaultRootDirectoryFiles.relativize(path).toString(), path.toFile()));
+    }
+
     private static final class Stub {
         final String name;
         final String json;
@@ -413,5 +441,24 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
         }
     }
 
+    private List<Path> getAllFiles(Path path) {
 
+        if (!Files.exists(path)) {
+            return Collections.emptyList();
+        }
+
+        try (Stream<Path> stream = Files.walk(path)){
+            return stream.filter(Files::isRegularFile).collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String readAllContent(Path path) {
+        try {
+            return new String(Files.readAllBytes(path));
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
 }
