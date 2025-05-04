@@ -5,4 +5,9 @@ updates:
   schedule:
     interval: daily
     time: "00:00"
-  open-pull-requests-limit: 10
+  open-pull-requests-limit: 10 
+- package-ecosystem: "github-actions"
+  directory: "/"
+  labels: chore
+  schedule:
+    interval: "weekly"
