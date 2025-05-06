@@ -1,0 +1,10 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/hello/default/root/dir"
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "default-root-dir-file.json"
+  }
+}

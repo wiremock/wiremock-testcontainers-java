@@ -59,8 +59,11 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     public static final DockerImageName WIREMOCK_2_LATEST =
             DockerImageName.parse(OFFICIAL_IMAGE_NAME).withTag(WIREMOCK_2_LATEST_TAG);
 
-    private static final String MAPPINGS_DIR = "/home/wiremock/mappings/";
-    private static final String FILES_DIR = "/home/wiremock/__files/";
+    private static final String MAPPINGS_DIR = "mappings/";
+    private static final String FILES_DIR = "__files/";
+    private static final String CONTAINER_WORKING_DIR = "/home/wiremock/";
+    private static final String CONTAINER_MAPPINGS_DIR = CONTAINER_WORKING_DIR + MAPPINGS_DIR;
+    private static final String CONTAINER_FILES_DIR = CONTAINER_WORKING_DIR + FILES_DIR;
 
     private static final String EXTENSIONS_DIR = "/var/wiremock/extensions/";
     private static final int PORT = 8080;
@@ -80,6 +83,8 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     private final Map<String, MountableFile> mappingFiles = new HashMap<>();
     private final Map<String, WireMockPlugin> plugins = new HashMap<>();
     private boolean isBannerDisabled = true;
+
+    private File rootDir = new File("src/test/resources");
 
     /**
      * Create image from the specified full image name (repo, image, tag)
@@ -130,7 +135,7 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
         isBannerDisabled = false;
         return this;
     }
-    
+
     /**
      * Adds CLI argument to the WireMock call.
      * @param arg Argument
@@ -374,12 +379,15 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
     protected void configure() {
         super.configure();
         addExposedPorts(PORT);
+
+        loadAllFilesFromRootDirectory();
+
         for (Stub stub : mappingStubs.values()) {
-            withCopyToContainer(Transferable.of(stub.json), MAPPINGS_DIR + stub.name + ".json");
+            withCopyToContainer(Transferable.of(stub.json), CONTAINER_MAPPINGS_DIR + stub.name + ".json");
         }
 
         for (Map.Entry<String, MountableFile> mount : mappingFiles.entrySet()) {
-            withCopyToContainer(mount.getValue(), FILES_DIR + mount.getKey());
+            withCopyToContainer(mount.getValue(), CONTAINER_FILES_DIR + mount.getKey());
         }
 
         final ArrayList<String> extensionClassNames = new ArrayList<>();
@@ -403,6 +411,54 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
         withCommand(wireMockArgs.toString());
     }
 
+    /**
+     * Configures the root directory where mappings and files will be loaded recursively.
+     * If not set, {@code src/test/resources} will be used by default.
+     * <p>
+     * Files will be loaded from {@code $rootDir/__files} and mappings from {@code $rootDir/mappings}.
+     *
+     * @param rootDir the root directory
+     * @return this instance
+     */
+    public WireMockContainer withRootDir(File rootDir) {
+        this.rootDir = rootDir;
+        return this;
+    }
+
+    private void loadAllFilesFromRootDirectory() {
+        if (rootDir == null || !rootDir.isDirectory()) {
+            return;
+        }
+
+        Path mappingsPath = rootDir.toPath().resolve(MAPPINGS_DIR);
+        getAllFiles(mappingsPath).forEach(path -> withMappingFromJSON(readAllContent(path)));
+
+        Path filesPath = rootDir.toPath().resolve(FILES_DIR);
+        getAllFiles(filesPath).forEach(path ->
+                withFile(filesPath.relativize(path).toString(), path.toFile()));
+    }
+
+    private List<Path> getAllFiles(Path path) {
+
+        if (!Files.exists(path)) {
+            return Collections.emptyList();
+        }
+
+        try (Stream<Path> stream = Files.walk(path)){
+            return stream.filter(Files::isRegularFile).collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String readAllContent(Path path) {
+        try {
+            return new String(Files.readAllBytes(path));
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
     private static final class Stub {
         final String name;
         final String json;
@@ -412,6 +468,4 @@ public class WireMockContainer extends GenericContainer<WireMockContainer> {
             this.json = json;
         }
     }
-
-
 }
