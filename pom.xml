@@ -35,7 +35,7 @@
     <wiremock.version>3.5.4</wiremock.version>
     <testcontainers.version>1.21.1</testcontainers.version>
     <junit.version>5.13.1</junit.version>
-    <assertj.version>3.26.3</assertj.version>
+    <assertj.version>3.27.4</assertj.version>
     <awaitility.version>4.3.0</awaitility.version>
     <project.scm.id>github</project.scm.id>
   </properties>
