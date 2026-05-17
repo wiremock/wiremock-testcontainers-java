@@ -15,23 +15,20 @@
  */
 package org.wiremock.integrations.testcontainers;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import org.wiremock.integrations.testcontainers.testsupport.http.HttpResponse;
 import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Testcontainers(parallel = true)
 class WireMockContainerTest {
 
     private static final int WIREMOCK_DEFAULT_PORT = 8080;
     private static final int ADDITIONAL_MAPPED_PORT = 8443;
 
-    @Container
     WireMockContainer wiremockServer = new WireMockContainer(TestConfig.WIREMOCK_DEFAULT_IMAGE)
             .withMapping("hello", WireMockContainerTest.class, "hello-world.json")
             .withMapping("hello-resource", WireMockContainerTest.class, "hello-world-resource.json")
@@ -39,6 +36,12 @@ class WireMockContainerTest {
                     "hello-world-resource-response.xml")
             .withExposedPorts(ADDITIONAL_MAPPED_PORT);
 
+
+    @BeforeEach
+    public void setup() {
+        wiremockServer.start();
+        assertThat(wiremockServer.isRunning()).isTrue();
+    }
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -74,6 +77,7 @@ class WireMockContainerTest {
 
     @Test
     void customPortsAreExposed() {
+
         //given
 
         //when

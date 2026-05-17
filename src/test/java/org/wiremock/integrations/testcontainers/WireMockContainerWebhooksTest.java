@@ -15,13 +15,12 @@
  */
 package org.wiremock.integrations.testcontainers;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import org.wiremock.integrations.testcontainers.testsupport.http.HttpResponse;
 import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpClient;
 import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpServer;
@@ -46,7 +45,6 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
  *
  * @see <a href="https://www.testcontainers.org/features/networking/">Testcontainers Networking</a>
  */
-@Testcontainers
 class WireMockContainerWebhooksTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WireMockContainerWebhooksTest.class);
@@ -55,12 +53,17 @@ class WireMockContainerWebhooksTest {
 
 
     TestHttpServer applicationServer = TestHttpServer.newInstance();
-    @Container
     WireMockContainer wiremockServer = new WireMockContainer(TestConfig.WIREMOCK_DEFAULT_IMAGE)
             .withLogConsumer(new Slf4jLogConsumer(LOGGER))
             .withCliArg("--global-response-templating")
             .withMapping("webhook-callback-template", WireMockContainerWebhooksTest.class, "webhook-callback-template.json")
             .withAccessToHost(true); // Force the host access mechanism
+
+    @BeforeEach
+    public void setup() {
+        wiremockServer.start();
+        assertThat(wiremockServer.isRunning()).isTrue();
+    }
 
     @Test
     void callbackUsingJsonStub() throws Exception {

@@ -33,9 +33,7 @@
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <wiremock.version>3.5.4</wiremock.version>
-    <testcontainers.version>1.21.3</testcontainers.version>
-    <junit.version>5.13.1</junit.version>
-    <assertj.version>3.27.6</assertj.version>
+    <testcontainers.version>2.0.5</testcontainers.version>
     <junit.version>5.13.4</junit.version>
     <assertj.version>3.27.6</assertj.version>
     <awaitility.version>4.3.0</awaitility.version>
@@ -78,11 +76,6 @@
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>testcontainers</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>

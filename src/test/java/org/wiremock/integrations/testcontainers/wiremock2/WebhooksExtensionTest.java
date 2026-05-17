@@ -22,13 +22,13 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Collections;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import org.wiremock.integrations.testcontainers.TestConfig;
 import org.wiremock.integrations.testcontainers.WireMockContainer;
 import org.wiremock.integrations.testcontainers.testsupport.http.HttpResponse;
@@ -47,7 +47,6 @@ import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpServer;
  *
  * @see <a href="https://www.testcontainers.org/features/networking/">Testcontainers Networking</a>
  */
-@Testcontainers
 class WebhooksExtensionTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebhooksExtensionTest.class);
@@ -56,7 +55,6 @@ class WebhooksExtensionTest {
 
 
     TestHttpServer applicationServer = TestHttpServer.newInstance();
-    @Container
     WireMockContainer wiremockServer = new WireMockContainer(TestConfig.WIREMOCK_2_IMAGE)
         .withLogConsumer(new Slf4jLogConsumer(LOGGER))
         .withCliArg("--global-response-templating")
@@ -65,6 +63,12 @@ class WebhooksExtensionTest {
                         Collections.singleton("org.wiremock.webhooks.Webhooks"),
                         Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-webhooks-extension-2.35.0.jar").toFile()))
         .withAccessToHost(true); // Force the host access mechanism
+
+    @BeforeEach
+    public void setup() {
+        wiremockServer.start();
+        assertThat(wiremockServer.isRunning()).isTrue();
+    }
 
     @Test
     void callbackUsingJsonStub() throws Exception {
