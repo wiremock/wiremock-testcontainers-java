@@ -21,6 +21,8 @@ A common example is using Wiremock 3.x with Java 1.8.
 
 ## Compatibility
 
+### WireMock
+
 The module is compatible with the following WireMock versions:
 
 - WireMock (aka WireMock Java) `2.0.0` and above
@@ -29,6 +31,16 @@ The module is compatible with the following WireMock versions:
 
 Other WireMock implementations may work but have not been tested yet.
 Please feel free to contribute the integration tests and compatibility layers!
+
+### Test Frameworks
+
+Versions before `1.0-alpha-3` were tested with JUnit 4 and JUnit 5.
+Newer versions were updates to Testcontainers 2 and hence require JUnit 5.
+All JUnit 5 compatible test frameworks should work.
+
+### Java
+
+The module is compatible with Java 8 and above.s
 
 ## Usage
 
