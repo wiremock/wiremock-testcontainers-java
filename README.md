@@ -109,7 +109,7 @@ JitPack / Gradle
 
 </details>
 
-### Using the test container in JUnit 4/5
+### Using the test container in JUnit 5
 
 P.S: Javadoc is coming soon!
 
@@ -117,7 +117,6 @@ P.S: Javadoc is coming soon!
 
 ```java
 import org.junit.jupiter.api.*;
-import org.testcontainers.junit.jupiter.*;
 import org.wiremock.integrations.testcontainers.testsupport.http.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -129,6 +128,12 @@ class WireMockContainerJunit5Test {
     WireMockContainer wiremockServer = new WireMockContainer("wiremock/wiremock:2.35.0")
             .withMapping("hello", WireMockContainerJunit5Test.class, "hello-world.json");
 
+    @BeforeEach
+    public void setup() {
+        wiremockServer.start();
+        assertThat(wiremockServer.isRunning()).isTrue();
+    }
+    
     @Test
     void helloWorld() throws Exception {
         // given
@@ -145,41 +150,6 @@ class WireMockContainerJunit5Test {
 }
 ```
 
-#### Sample Code using JUnit 4
-
-<details>
-<summary>
-Show Code
-</summary>
-
-```java
-import org.junit.*;
-import org.wiremock.integrations.testcontainers.testsupport.http.*;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class WireMockContainerJunit4Test {
-
-    @Rule
-    public WireMockContainer wiremockServer = new WireMockContainer("wiremock/wiremock:2.35.0")
-            .withMapping("hello", WireMockContainerJunit4Test.class, "hello-world.json");
-
-    @Test
-    public void helloWorld() throws Exception {
-        // given
-        String url = wiremockServer.getUrl("/hello");
-
-        // when
-        HttpResponse response = new TestHttpClient().get(url);
-
-        // then
-        assertThat(response.getBody())
-                .as("Wrong response body")
-                .contains("Hello, world!");
-    }
-}
-```
-</details>    
     
 ### Using WireMock extensions
 
@@ -256,7 +226,6 @@ Test sample:
 
 ```java
 import org.junit.jupiter.api.*;
-import org.testcontainers.junit.jupiter.*;
 import org.wiremock.integrations.testcontainers.testsupport.http.*;
 
 import java.nio.file.Paths;
@@ -264,16 +233,20 @@ import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Testcontainers
 class WireMockContainerExtensionJunit5Test {
-
-    @Container
+    
     WireMockContainer wiremockServer = new WireMockContainer("wiremock/wiremock:2.35.0")
             .withMapping("json-body-transformer", WireMockContainerExtensionJunit5Test.class, "json-body-transformer.json")
             .withExtension("JSON Body Transformer",
                     Collections.singleton("com.ninecookies.wiremock.extensions.JsonBodyTransformer"),
                     Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-extensions-0.4.1-jar-with-dependencies.jar").toFile()));
 
+    @BeforeEach
+    public void setup() {
+       wiremockServer.start();
+        assertThat(wiremockServer.isRunning()).isTrue();
+    }
+    
     @Test
     void testJSONBodyTransformer() throws Exception {
         // given
@@ -289,48 +262,6 @@ class WireMockContainerExtensionJunit5Test {
     }
 }
 ```
-
-##### Sample code using JUnit 4
-
-<details>
-<summary>
-Show Code
-</summary> 
-    
-```java
-import org.junit.*;
-import org.wiremock.integrations.testcontainers.testsupport.http.*;
-
-import java.nio.file.Paths;
-import java.util.Collections;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class WireMockContainerExtensionJunit4Test {
-
-    @Rule
-    public WireMockContainer wiremockServer = new WireMockContainer("wiremock/wiremock:2.35.0")
-            .withMapping("json-body-transformer", WireMockContainerExtensionJunit4Test.class, "json-body-transformer.json")
-            .withExtension("JSON Body Transformer",
-                    Collections.singleton("com.ninecookies.wiremock.extensions.JsonBodyTransformer"),
-                    Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-extensions-0.4.1-jar-with-dependencies.jar").toFile()));
-
-    @Test
-    public void testJSONBodyTransformer() throws Exception {
-        // given
-        String url = wiremockServer.getUrl("/json-body-transformer");
-        String body = "{\"name\":\"John Doe\"}";
-
-        // when
-        HttpResponse response = new TestHttpClient().post(url, body);
-
-        // then
-        assertThat(response.getBody()).as("Wrong response body")
-                .contains("Hello, John Doe!");
-    }
-}
-```  
-</details>
 
 ## Contributing
 

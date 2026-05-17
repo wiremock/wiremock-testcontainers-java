@@ -15,12 +15,11 @@
  */
 package org.wiremock.integrations.testcontainers;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import org.wiremock.integrations.testcontainers.testsupport.http.HttpResponse;
 import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpClient;
 
@@ -34,12 +33,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests the WireMock extension loading.
  * It uses the external Jar supplied by the Maven Dependency Plugin.
  */
-@Testcontainers
 class WireMockContainerExtensionTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WireMockContainerExtensionTest.class);
 
-    @Container
     WireMockContainer wiremockServer = new WireMockContainer(TestConfig.WIREMOCK_DEFAULT_IMAGE)
             .withLogConsumer(new Slf4jLogConsumer(LOGGER))
             .withStartupTimeout(Duration.ofSeconds(60))
@@ -47,6 +44,12 @@ class WireMockContainerExtensionTest {
             .withExtensions("JSON Body Transformer",
                     Collections.singleton("com.ninecookies.wiremock.extensions.JsonBodyTransformer"),
                     Collections.singleton(Paths.get("target", "test-wiremock-extension", "wiremock-extensions-0.4.1-jar-with-dependencies.jar").toFile()));
+
+    @BeforeEach
+    public void setup() {
+        wiremockServer.start();
+        assertThat(wiremockServer.isRunning()).isTrue();
+    }
 
     @Test
     void testJSONBodyTransformer() throws Exception {

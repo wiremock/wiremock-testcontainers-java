@@ -6,7 +6,7 @@ plugins {
 
 description = "This Testcontainers module allows provisioning the WireMock server as a standalone container within your unit tests, based on WireMock Docker"
 group = "org.wiremock.integrations.testcontainers"
-version = "1.0-alpha-12-SNAPSHOT"
+version = "1.0-alpha-13-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -15,7 +15,7 @@ java {
     withJavadocJar()
 }
 
-val testcontainersVersion = "1.20.6"
+val testcontainersVersion = "2.0.5"
 val junitVersion = "5.12.1"
 val assertjVersion = "3.26.3"
 val awaitilityVersion = "4.2.2"
@@ -37,7 +37,6 @@ dependencies {
     compileOnly("ch.qos.logback:logback-classic:${logbackClassicVersion}")
 
     testImplementation(platform("org.junit:junit-bom:$junitVersion"))
-    testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
     testImplementation("org.junit.jupiter:junit-jupiter-engine")
     testImplementation("org.junit.vintage:junit-vintage-engine")

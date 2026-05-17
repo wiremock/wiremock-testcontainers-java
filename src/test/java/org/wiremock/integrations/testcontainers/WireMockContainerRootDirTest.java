@@ -15,9 +15,8 @@
  */
 package org.wiremock.integrations.testcontainers;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import org.wiremock.integrations.testcontainers.testsupport.http.HttpResponse;
 import org.wiremock.integrations.testcontainers.testsupport.http.TestHttpClient;
 
@@ -25,13 +24,18 @@ import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Testcontainers(parallel = true)
 class WireMockContainerRootDirTest {
-    @Container
+
     WireMockContainer wiremockServer = new WireMockContainer(TestConfig.WIREMOCK_DEFAULT_IMAGE)
             .withMapping("hello", WireMockContainerRootDirTest.class, "hello.json")
             .withFileFromResource("file.json", WireMockContainerRootDirTest.class, "file.json")
             .withRootDir(new File("src/test/resources/root-dir"));
+
+    @BeforeEach
+    public void setup() {
+        wiremockServer.start();
+        assertThat(wiremockServer.isRunning()).isTrue();
+    }
 
     @Test
     void testThatLoadsMappingFromRootDirectory() throws Exception {
