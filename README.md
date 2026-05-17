@@ -34,7 +34,7 @@ Please feel free to contribute the integration tests and compatibility layers!
 
 ### Test Frameworks
 
-Versions before `1.0-alpha-3` were tested with JUnit 4 and JUnit 5.
+Versions before `1.0-alpha-16` were tested with JUnit 4 and JUnit 5.
 Newer versions were updates to Testcontainers 2 and hence require JUnit 5.
 All JUnit 5 compatible test frameworks should work.
 
