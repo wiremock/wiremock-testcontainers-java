@@ -1,0 +1,10 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/hello/nested/root/dir"
+  },
+  "response": {
+    "status": 200,
+    "body": "Hello nested root dir"
+  }
+}
