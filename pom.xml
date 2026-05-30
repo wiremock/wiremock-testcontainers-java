@@ -288,25 +288,17 @@
         </repository>
       </distributionManagement>
       <build>
-          <pluginManagement>
-              <plugins>
-                  <plugin>
-                      <groupId>org.sonatype.plugins</groupId>
-                      <artifactId>nexus-staging-maven-plugin</artifactId>
-                      <version>${version.nexus-staging-maven-plugin}</version>
-                      <extensions>true</extensions>
-                      <configuration>
-                          <serverId>ossrh</serverId>
-                          <nexusUrl>https://oss.sonatype.org</nexusUrl>
-                          <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                      </configuration>
-                  </plugin>
-              </plugins>
-          </pluginManagement>
           <plugins>
               <plugin>
-                  <groupId>org.sonatype.plugins</groupId>
-                  <artifactId>nexus-staging-maven-plugin</artifactId>
+                  <groupId>org.sonatype.central</groupId>
+                  <artifactId>central-publishing-maven-plugin</artifactId>
+                  <version>0.9.0</version>
+                  <extensions>true</extensions>
+                  <configuration>
+                      <publishingServerId>central</publishingServerId>
+                      <autoPublish>true</autoPublish>
+                      <waitUntil>published</waitUntil>
+                  </configuration>
               </plugin>
           </plugins>
       </build>
