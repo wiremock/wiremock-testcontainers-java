@@ -1,0 +1,69 @@
+name: Release with Gradle Build Tool
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version'
+        required: true
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git user
+        run: |
+            git config user.email "actions@github.com"
+            git config user.name "GitHub Actions"
+
+      - id: install-secret-key
+        name: Install gpg secret key
+        run: |
+          # Install gpg secret key
+          cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
+          # Verify gpg secret key
+          gpg --list-secret-keys --keyid-format LONG
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11
+          server-id: github
+          distribution: 'temurin'
+          cache: maven
+ 
+      - name: Set Release Version
+        id: vars
+        shell: bash
+        run: |
+          echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          echo "${{ github.event.inputs.version }}" > version.txt
+          
+      - name: Publish core package
+        id: publish_package
+        run: ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache --stacktrace
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ vars.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
+          OSSRH_GPG_SECRET_KEY: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
+          OSSRH_GPG_SECRET_KEY_PASSWORD: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
+          SONATYPE_CLOSE_TIMEOUT_SECONDS: 1800
+        
+     # - name: Publish to GitHub Packages
+     #   run: mvn -ntp --batch-mode -Dgpg.passphrase="${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}" clean deploy -Prelease
+     #   env:
+     #     GITHUB_TOKEN: ${{ github.token }}
+
+     
